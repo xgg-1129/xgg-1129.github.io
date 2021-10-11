@@ -187,6 +187,86 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/11/GoLang%E7%9A%84String/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/Head.png">
+      <meta itemprop="name" content="贤锅锅">
+      <meta itemprop="description" content="达则兼济天下，穷则独善其身">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="等待无法改变任何事">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/10/11/GoLang%E7%9A%84String/" class="post-title-link" itemprop="url">未命名</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-10-11 11:35:35 / 修改时间：11:39:43" itemprop="dateCreated datePublished" datetime="2021-10-11T11:35:35+08:00">2021-10-11</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>862</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>-</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/10/11/GoLang%E7%9A%84String/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/10/Map/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -212,7 +292,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-10-10 13:22:09 / 修改时间：15:35:03" itemprop="dateCreated datePublished" datetime="2021-10-10T13:22:09+08:00">2021-10-10</time>
+              <time title="创建时间：2021-10-10 13:22:09 / 修改时间：20:33:20" itemprop="dateCreated datePublished" datetime="2021-10-10T13:22:09+08:00">2021-10-10</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -249,34 +329,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h3 id="map是什么？"><a href="#map是什么？" class="headerlink" title="map是什么？"></a>map是什么？</h3><p>map是一种通过key获取value 的抽象数据结构，通常基于哈希表或者搜索树实现，哈希表平均查找速度快O(1),最快是O(N)，自平衡搜索树稳定 O(logN)，但是搜索树会进行很多为了维持自己的平衡的操作，所以map一般基于HashTable实现。</p>
-<h3 id="设计一个哈希表需要考虑哪些因素"><a href="#设计一个哈希表需要考虑哪些因素" class="headerlink" title="设计一个哈希表需要考虑哪些因素"></a>设计一个哈希表需要考虑哪些因素</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">2.1哈希函数如何设计？合理的哈希函数能够提高每个内存的命中和减少哈希碰撞</span><br><span class="line">2.2如何解决哈希冲突？用树还是红黑树？【应该没有语言会用探测法解决哈希冲突吧】</span><br><span class="line">2.3负载因子的大小如何设置，设置为多大才合理？</span><br><span class="line">2.4如何扩容？</span><br></pre></td></tr></table></figure>
-
-<h3 id="一个基于简单拉链法实现的HashMap"><a href="#一个基于简单拉链法实现的HashMap" class="headerlink" title="一个基于简单拉链法实现的HashMap"></a>一个基于简单拉链法实现的HashMap</h3><p>HashMap结构如下,<a target="_blank" rel="noopener" href="https://github.com/xgg-1129/XggContainer/tree/master/HashTable">代码</a></p>
-<p>取模法寻址过程为  hash(key) % size</p>
-<p><img src="/images/HashMap.png" alt="Alt text"></p>
-<h3 id="Golang中基于哈希表实现的Map"><a href="#Golang中基于哈希表实现的Map" class="headerlink" title="Golang中基于哈希表实现的Map"></a>Golang中基于哈希表实现的Map</h3><p><img src="https://pic2.zhimg.com/v2-0178a76f87bb68fd7a645e6885e17525_b.jpg" alt="Alt text"></p>
-<p>GoLang的数组存储的不是直接存储一个键值对，而是存储一个bucket，bucket里面存储了8个键值对信息。</p>
-<h4 id="定位函数的设计"><a href="#定位函数的设计" class="headerlink" title="定位函数的设计"></a>定位函数的设计</h4><p>定位函数一般有取模法和与运算，Golang采用的是与运算的设计方案，这种方案要求哈希数组的个数必须是2的整数次幂，这样能够确保不会出现空桶。</p>
-<h4 id="链表哈希冲突"><a href="#链表哈希冲突" class="headerlink" title="链表哈希冲突"></a>链表哈希冲突</h4><p>golang用链表解决哈希冲突</p>
-<h4 id="寻址过程"><a href="#寻址过程" class="headerlink" title="寻址过程"></a>寻址过程</h4><p>key 经过哈希计算后得到哈希值，共 64 个 bit 位（64位机，32位机就不讨论了，现在主流都是64位机），计算它到底要落在哪个桶时，只会用到最后 B 个 bit 位。还记得前面提到过的 B 吗？如果 B = 5，那么桶的数量，也就是 buckets 数组的长度是 2^5 = 32。</p>
-<p>例如，现在有一个 key 经过哈希函数计算后，得到的哈希结果是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">10010111 | 000011110110110010001111001010100010010110010101010 │ 01010</span><br></pre></td></tr></table></figure>
-
-<p>用最后的 5 个 bit 位，也就是 <code>01010</code>，值为 10，也就是 10 号桶。这个操作实际上就是取余操作，但是取余开销太大，所以代码实现上用的位操作代替。</p>
-<p>再用哈希值的高 8 位，找到此 key 在 bucket 中的位置，这是在寻找已有的 key。最开始桶内还没有 key，新加入的 key 会找到第一个空位，放入。</p>
-<p>buckets 编号就是桶编号，当两个不同的 key 落在同一个桶中，也就是发生了哈希冲突。冲突的解决手段是用链表法：在 bucket 中，从前往后找到第一个空位。这样，在查找某个 key 时，先找到对应的桶，再去遍历 bucket 中的 key。</p>
-<p>key定位流程图</p>
-<p><img src="https://pic3.zhimg.com/v2-dcc95d8e32ba33275a26136749b909fe_b.jpg" alt="img"></p>
-<h4 id="扩容机制"><a href="#扩容机制" class="headerlink" title="扩容机制"></a>扩容机制</h4><p>map 扩容需要将原有的 key/value 重新搬迁到新的内存地址，如果一次性把大量的 key/value 需要搬迁，会非常影响性能。因此 Go map 的扩容采取了一种称为“渐进式”地方式，原有的 key 并不会一次性搬迁完毕，每次最多只会搬迁 2 个 bucket。而且，golang的扩容机智，一定会将golang的旧桶分裂到二个新桶，减少了哈希冲突的概率。</p>
-<h4 id="map可以一边遍历一边删除吗"><a href="#map可以一边遍历一边删除吗" class="headerlink" title="map可以一边遍历一边删除吗"></a>map可以一边遍历一边删除吗</h4><p>map 并不是一个线程安全的数据结构。同时读写一个 map 是未定义的行为，如果被检测到，会直接 panic。</p>
-<h4 id="key可以是float吗"><a href="#key可以是float吗" class="headerlink" title="key可以是float吗"></a>key可以是float吗</h4><p>从语法上看，是可以的。Go 语言中只要是可比较的类型都可以作为 key。除开 slice，map，functions 这几种类型，其他类型都是 OK 的。具体包括：布尔值、数字、字符串、指针、通道、接口类型、结构体、只包含上述类型的数组。这些类型的共同特征是支持 <code>==</code> 和 <code>!=</code> 操作符，<code>k1 == k2</code> 时，可认为 k1 和 k2 是同一个 key。如果是结构体，则需要它们的字段值都相等，才被认为是相同的 key。任何类型都可以作为 value，包括 map 类型。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Go 语言中，通过哈希查找表实现 map，用链表法解决哈希冲突。</p>
-<p>通过 key 的哈希值将 key 散落到不同的桶中，每个桶中有 8 个 cell。哈希值的低位决定桶序号，高位标识同一个桶中的不同 key。</p>
-<p>当向桶中添加了很多 key，造成元素过多，或者溢出桶太多，就会触发扩容。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/66676224">深度解密Go语言map</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Sp4y1U7dJ?spm_id_from=333.999.0.0">幼麟实验室</a></p>
-
+          <p>-</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/10/10/Map/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -321,6 +382,13 @@
 
               <time title="创建时间：2021-10-09 15:18:17" itemprop="dateCreated datePublished" datetime="2021-10-09T15:18:17+08:00">2021-10-09</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-10-10 20:31:40" itemprop="dateModified" datetime="2021-10-10T20:31:40+08:00">2021-10-10</time>
+              </span>
 
           <br>
             <span class="post-meta-item" title="本文字数">
@@ -348,19 +416,14 @@
 
       
           <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/10/09/hello-world/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -442,7 +505,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -500,13 +563,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">2k</span>
+    <span title="站点总字数">3k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">2 分钟</span>
+    <span title="站点阅读时长">3 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
