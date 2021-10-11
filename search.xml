@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title></title>
-    <url>/2021/10/11/GoLang%E7%9A%84String/</url>
+    <title>GoLang字符串</title>
+    <url>/2021/10/11/GoLang%E5%AD%97%E7%AC%A6%E4%B8%B2/</url>
     <content><![CDATA[<p>-</p>
 <span id="more"></span>
 
 <h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><p>字符串的本质实际就是一片连续的内存空间，我们通常可以把他理解为一个字符数组，Go语言的字符串是一片只读的字节数组。</p>
 <h3 id="内存中的字符串"><a href="#内存中的字符串" class="headerlink" title="内存中的字符串"></a>内存中的字符串</h3><p>如果是代码中存在的字符串，编译器会将其标记成只读数据 <code>SRODATA</code>，假设我们有以下代码，其中包含了一个字符串，当我们将这段代码编译成汇编语言时，就能够看到 <code>hello</code> 字符串有一个 <code>SRODATA</code> 的标记</p>
 <p>//禁止内联生成汇编代码</p>
-<p> GOOS=linux GOARCH=amd64 go tool compile -S main.go</p>
+<p>GOOS=linux GOARCH=amd64 go tool compile -S main.go</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	str := <span class="string">&quot;hello&quot;</span></span><br><span class="line">	<span class="built_in">println</span>([]<span class="keyword">byte</span>(str))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$ GOOS=linux GOARCH=amd64 <span class="keyword">go</span> tool compile -S main.<span class="keyword">go</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">go</span>.<span class="keyword">string</span>.<span class="string">&quot;hello&quot;</span> SRODATA dupok size=<span class="number">5</span></span><br><span class="line">	<span class="number">0x0000</span> <span class="number">68</span> <span class="number">65</span> <span class="number">6</span>c <span class="number">6</span>c <span class="number">6</span>f  </span><br></pre></td></tr></table></figure>
 
 <p>只读只意味着字符串会分配到只读的内存空间【数据段+代码=制度空间】，我们不可以直接修改 <code>string</code>类型变量的内存空间。</p>
@@ -23,6 +23,12 @@
 <p><a href="https://www.bilibili.com/video/BV1hv411x7we?spm_id_from=333.999.0.0">幼麟实验室</a></p>
 <p><a href="https://draveness.me/golang/docs/part2-foundation/ch03-datastructure/golang-string/#344-%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2">Draveness字符串解析</a></p>
 ]]></content>
+      <categories>
+        <category>语言学习</category>
+      </categories>
+      <tags>
+        <tag>GoLang</tag>
+      </tags>
   </entry>
   <entry>
     <title>HashMap</title>
@@ -62,9 +68,9 @@
         <category>数据结构</category>
       </categories>
       <tags>
+        <tag>GoLang</tag>
         <tag>数据结构</tag>
         <tag>哈希表</tag>
-        <tag>GoLang</tag>
       </tags>
   </entry>
   <entry>
