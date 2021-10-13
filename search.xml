@@ -1,6 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Go类型系统</title>
+    <url>/2021/10/13/Go%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<h2 id="类型是什么"><a href="#类型是什么" class="headerlink" title="类型是什么"></a>类型是什么</h2><p>计算机只能理解0和1，只认识一堆存有0和1的寄存器，所以类型是编程语言基于汇编语言的一种抽象实现，它能够把我们写的类型<strong>值</strong>按照一种特定的方式转化为汇编语言。</p>
+<h2 id="类型系统是什么"><a href="#类型系统是什么" class="headerlink" title="类型系统是什么"></a>类型系统是什么</h2><p>任何语言都有自己的类型系统，任何“值”也都唯一的属于某种类型。</p>
+<p>一个“值”只有有自己的类型，才能被编译器所识别，从而正确的为其分配内存和使用。</p>
+<p>类型为编译器提供了两种信息：</p>
+<ol>
+<li>类型的规模，即需要为该种类型的“值”分配多少内存；</li>
+<li>内存的表示，即这段内存表示的是什么。</li>
+</ol>
+<p><strong>所以一个语言的类型系统指明：哪些操作对哪些类型是有效的。(一个类型允许进行哪些操作)用于强制这些二进制数据按照我们预期的值来解析，确保在一个整数的二进制格式上不会做任何非整数的操作，从而获取一些毫无意义的东西。</strong></p>
+<h2 id="GoLang类型元数据"><a href="#GoLang类型元数据" class="headerlink" title="GoLang类型元数据"></a>GoLang类型元数据</h2><p>类型元数据承载了一个类型的所有信息，每种数据的类型元数据全局唯一。如下图所示，第一个方框格为每个类型元数据的Header，存放了名字、对其边界等必备信息，中间的方框格用来存放一些补充信息，如果是自定义类型，则会有第三个方框格，记录类型的包路径、方法个数、和一个记录了方法元数据数组的指针。</p>
+<p><img src="/images/post1.png" alt="Alt text"></p>
+<p>一个[]String类型的元数据如下</p>
+<p><img src="/images/post2.png" alt="Alt text"></p>
+<h2 id="type-MyType1-int32和type-MyType2-int32的区别"><a href="#type-MyType1-int32和type-MyType2-int32的区别" class="headerlink" title="type MyType1 int32和type MyType2=int32的区别"></a>type MyType1 int32和type MyType2=int32的区别</h2><p>前者是类型别名写法不创建新的类型元数据，后者是创建新的自定义类型，会创建新的类型元数据</p>
+<p><img src="/images/post3.png" alt="Alt text"></p>
+<h2 id="命名类型和未命名类型"><a href="#命名类型和未命名类型" class="headerlink" title="命名类型和未命名类型"></a>命名类型和未命名类型</h2><p>具有名称的类型就是命名类型，例如：<code>int</code>, <code>int64</code>, <code>float32</code>, <code>string</code>, <code>bool</code>等。</p>
+<p>没有名称的类型就是未命名类型，例如数组，结构体，指针，函数，接口，切片，map，通道 都是未命名类型。【我的理解就是引用类型都是未命名类型】</p>
+<h2 id="底层类型"><a href="#底层类型" class="headerlink" title="底层类型"></a>底层类型</h2><p>GoLang中，每个类型都有自己的底层类型【我猜测就是类型元数据中的Head】，底层类型在类型转换和赋值、比较中扮演着重要的属性。</p>
+<ul>
+<li>底层类型为内置类型<code>bool</code>的类型称为<strong>布尔类型</strong>；</li>
+<li>底层类型为任一内置整数类型的类型称为<strong>整数类型</strong>；</li>
+<li>底层类型为内置类型<code>float32</code>或者<code>float64</code>的类型称为<strong>浮点数类型</strong>；</li>
+<li>底层类型为内置类型<code>complex64</code>或<code>complex128</code>的类型称为<strong>复数类型</strong>；</li>
+<li>整数类型、浮点数类型和复数类型统称为<strong>数字值类型</strong>；</li>
+<li>底层类型为内置类型<code>string</code>的类型称为<strong>字符串类型</strong>。</li>
+</ul>
+<h2 id="赋值条件"><a href="#赋值条件" class="headerlink" title="赋值条件"></a>赋值条件</h2><p>双方应该具有相同的基础类型，而且其中至少有一个不是命名类型(至少有一个是未命名变类型)。</p>
+<h2 id="reflect"><a href="#reflect" class="headerlink" title="reflect"></a>reflect</h2><p>反射的原理就是将暴露类型的元数据给我们用</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/ce307b8e9772">深入研究Go(golang) Type类型系统</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/139347413">GO的类型系统和类型的方法</a></p>
+<p><a href="https://gfw.go101.org/article/type-system-overview.html">Go101类型系统概述</a></p>
+<p><a href="https://blog.csdn.net/weixin_36228538/article/details/115111509">GoLang类型系统</a></p>
+<p><a href="https://www.bilibili.com/video/BV1hv411x7we?p=12">幼麟实验室</a></p>
+]]></content>
+      <categories>
+        <category>语言学习</category>
+      </categories>
+      <tags>
+        <tag>GoLang</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>GoLang字符串</title>
     <url>/2021/10/11/GoLang%E5%AD%97%E7%AC%A6%E4%B8%B2/</url>
     <content><![CDATA[<p>-</p>
@@ -29,6 +76,12 @@
       <tags>
         <tag>GoLang</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>TCP连接队列</title>
+    <url>/2021/10/12/TCP%E8%BF%9E%E6%8E%A5%E9%98%9F%E5%88%97/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>]]></content>
   </entry>
   <entry>
     <title>HashMap</title>
@@ -91,5 +144,41 @@
 
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>动态数组Slice</title>
+    <url>/2021/10/12/%E5%8A%A8%E6%80%81%E6%95%B0%E7%BB%84Slice/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2><p>数组是一种抽象的数据结构，他代表了一个相同类型元素的集合，计算机会为数组分配一块连续的内存区域来保存元素，我们可以通过下标快速访问特定元素。</p>
+<h3 id="GoLang数组的内存区域"><a href="#GoLang数组的内存区域" class="headerlink" title="GoLang数组的内存区域"></a>GoLang数组的内存区域</h3><p>在不考虑内存逃逸的情况下，数组中的所有元素最终都是存储在栈中【如果数组中元素的个数小于或者等于 4 个，那么所有的变量会直接在栈上初始化，如果数组元素大于 4 个，变量就会在静态存储区初始化然后拷贝到栈上】-&gt; 不知道为啥要这么设计。。</p>
+<h3 id="GoLang数组总结"><a href="#GoLang数组总结" class="headerlink" title="GoLang数组总结"></a>GoLang数组总结</h3><p>数组是 Go 语言中重要的数据结构，了解它的实现能够帮助我们更好地理解这门语言，通过对其实现的分析，我们知道了对数组的访问和赋值需要同时依赖编译器和运行时，它的大多数操作在编译期间都会转换成直接读写内存。【奈何编译原理的知识储备不足，很多GoLang数组的底层特性无法深入，但是学编译原理的性价比太低了】</p>
+<h2 id="GoLang切片"><a href="#GoLang切片" class="headerlink" title="GoLang切片"></a>GoLang切片</h2><p>数组在编译期间必须确定大小，使用起来不太方便，所以在 Go 语言中没那么常用，更常用的数据结构是切片，即动态数组，其长度并不固定，我们可以向切片中追加元素，它会在容量不足时自动扩容。</p>
+<h3 id="切片的数据结构"><a href="#切片的数据结构" class="headerlink" title="切片的数据结构"></a>切片的数据结构</h3><p>切片本质就是一个结构体，源码如下</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> SliceHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">    Data <span class="keyword">uintptr</span> <span class="comment">// 元素指针</span></span><br><span class="line">    <span class="built_in">len</span>   <span class="keyword">int</span> <span class="comment">// 长度 </span></span><br><span class="line">    <span class="built_in">cap</span>   <span class="keyword">int</span> <span class="comment">// 容量</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>slice</code> 共有三个属性： <code>指针</code>，指向底层数组； <code>长度</code>，表示切片可用元素的个数，也就是说使用下标对 slice 的元素进行访问时，下标不能超过 slice 的长度； <code>容量</code>，底层数组的元素个数，容量 &gt;= 长度。在底层数组不进行扩容的情况下，容量也是 slice 可以扩张的最大限度。</p>
+<h3 id="切片的内存区域"><a href="#切片的内存区域" class="headerlink" title="切片的内存区域"></a>切片的内存区域</h3><p>当切片发生逃逸或者非常大时，运行时需要 <a href="https://draveness.me/golang/tree/runtime.makeslice"><code>runtime.makeslice</code></a> 在堆上初始化切片，如果当前的切片不会发生逃逸并且切片非常小的时候，<code>make([]int, 3, 4)</code> 会被直接转换成如下所示的代码</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> arr [<span class="number">4</span>]<span class="keyword">int</span></span><br><span class="line">n := arr[:<span class="number">3</span>]</span><br></pre></td></tr></table></figure>
+
+<h3 id="append"><a href="#append" class="headerlink" title="append"></a>append</h3><p>append会向底层的数组追加元素，如果底层数组已满会触发扩容机制，在内存中新找一片区域作为新的底层数组。</p>
+<p>扩容机制</p>
+<ol>
+<li>如果期望容量大于当前容量的两倍就会使用期望容量；</li>
+<li>如果当前切片的长度小于 1024 就会将容量翻倍；</li>
+<li>如果当前切片的长度大于 1024 就会每次增加 25% 的容量，直到新容量大于期望容量;</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>切片虽然十分灵活，但是切片的追加操作会引起内存的扩容和拷贝，大规模的内存拷贝十分影响程序的性能，所以使用切片前最好估计一下需要的内存最大值，然后一次性申请个大切片【超过限制的申请会直接panic】。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://jodezer.github.io/2017/05/golangSlice%E7%9A%84%E6%89%A9%E5%AE%B9%E8%A7%84%E5%88%99">golangSlice的扩容规则</a></p>
+<p><a href="https://draveness.me/golang/docs/part2-foundation/ch03-datastructure/golang-array-and-slice/#324-%E8%BF%BD%E5%8A%A0%E5%92%8C%E6%89%A9%E5%AE%B9">Drave切片解析</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/61121325">深度解密Golang切片</a></p>
+]]></content>
+      <categories>
+        <category>语言学习</category>
+      </categories>
+      <tags>
+        <tag>GoLang</tag>
+      </tags>
   </entry>
 </search>

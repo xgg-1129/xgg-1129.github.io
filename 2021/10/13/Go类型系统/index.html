@@ -24,18 +24,22 @@
 
   <meta name="description" content="-">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GoLang字符串">
-<meta property="og:url" content="http://example.com/2021/10/11/GoLang%E5%AD%97%E7%AC%A6%E4%B8%B2/index.html">
+<meta property="og:title" content="Go类型系统">
+<meta property="og:url" content="http://example.com/2021/10/13/Go%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="等待无法改变任何事">
 <meta property="og:description" content="-">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-10-11T03:50:26.000Z">
-<meta property="article:modified_time" content="2021-10-11T03:51:07.524Z">
+<meta property="og:image" content="http://example.com/images/post1.png">
+<meta property="og:image" content="http://example.com/images/post2.png">
+<meta property="og:image" content="http://example.com/images/post3.png">
+<meta property="article:published_time" content="2021-10-13T07:15:56.000Z">
+<meta property="article:modified_time" content="2021-10-13T07:23:43.319Z">
 <meta property="article:author" content="贤锅锅">
 <meta property="article:tag" content="GoLang">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/post1.png">
 
-<link rel="canonical" href="http://example.com/2021/10/11/GoLang%E5%AD%97%E7%AC%A6%E4%B8%B2/">
+<link rel="canonical" href="http://example.com/2021/10/13/Go%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/">
 
 
 <script id="page-configurations">
@@ -48,7 +52,7 @@
   };
 </script>
 
-  <title>GoLang字符串 | 等待无法改变任何事</title>
+  <title>Go类型系统 | 等待无法改变任何事</title>
   
 
 
@@ -191,7 +195,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/11/GoLang%E5%AD%97%E7%AC%A6%E4%B8%B2/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/13/Go%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/Head.png">
@@ -204,7 +208,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          GoLang字符串
+          Go类型系统
         </h1>
 
         <div class="post-meta">
@@ -215,7 +219,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-10-11 11:50:26 / 修改时间：11:51:07" itemprop="dateCreated datePublished" datetime="2021-10-11T11:50:26+08:00">2021-10-11</time>
+              <time title="创建时间：2021-10-13 15:15:56 / 修改时间：15:23:43" itemprop="dateCreated datePublished" datetime="2021-10-13T15:15:56+08:00">2021-10-13</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -233,7 +237,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>862</span>
+              <span>1.1k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -255,22 +259,39 @@
         <p>-</p>
 <span id="more"></span>
 
-<h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><p>字符串的本质实际就是一片连续的内存空间，我们通常可以把他理解为一个字符数组，Go语言的字符串是一片只读的字节数组。</p>
-<h3 id="内存中的字符串"><a href="#内存中的字符串" class="headerlink" title="内存中的字符串"></a>内存中的字符串</h3><p>如果是代码中存在的字符串，编译器会将其标记成只读数据 <code>SRODATA</code>，假设我们有以下代码，其中包含了一个字符串，当我们将这段代码编译成汇编语言时，就能够看到 <code>hello</code> 字符串有一个 <code>SRODATA</code> 的标记</p>
-<p>//禁止内联生成汇编代码</p>
-<p>GOOS=linux GOARCH=amd64 go tool compile -S main.go</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	str := <span class="string">&quot;hello&quot;</span></span><br><span class="line">	<span class="built_in">println</span>([]<span class="keyword">byte</span>(str))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$ GOOS=linux GOARCH=amd64 <span class="keyword">go</span> tool compile -S main.<span class="keyword">go</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">go</span>.<span class="keyword">string</span>.<span class="string">&quot;hello&quot;</span> SRODATA dupok size=<span class="number">5</span></span><br><span class="line">	<span class="number">0x0000</span> <span class="number">68</span> <span class="number">65</span> <span class="number">6</span>c <span class="number">6</span>c <span class="number">6</span>f  </span><br></pre></td></tr></table></figure>
-
-<p>只读只意味着字符串会分配到只读的内存空间【数据段+代码=制度空间】，我们不可以直接修改 <code>string</code>类型变量的内存空间。</p>
-<h3 id="字符串的数据结构"><a href="#字符串的数据结构" class="headerlink" title="字符串的数据结构"></a>字符串的数据结构</h3><p>字符串在运行的时候用StringHeader表示</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> StringHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">	Data <span class="keyword">uintptr</span> <span class="comment">//数据指针</span></span><br><span class="line">	Len  <span class="keyword">int</span>	 <span class="comment">//字符串长度</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="字符串拼接"><a href="#字符串拼接" class="headerlink" title="字符串拼接"></a>字符串拼接</h3><p>字符串是只读空间，我们无法向字符串追加元素改变它的内存空间，所有字符串的修改操作都是通过拷贝实现的。字符串运行时调用copy将多个字符串拷贝到新的内存空间，这样的内存拷贝是比较消耗性能的。</p>
-<h3 id="字符串和-byte的转换"><a href="#字符串和-byte的转换" class="headerlink" title="字符串和[]byte的转换"></a>字符串和[]byte的转换</h3><p>字符串和[]byte底层内容都是一样的，但是[]byte是可读可写的【堆栈】，类型转换通常使用截断或者拷贝完成，像字符串和[]byte这样处于不同类型内存空间的数据转换时会产生内存拷贝。</p>
-<h3 id="Len-String"><a href="#Len-String" class="headerlink" title="Len(String)"></a>Len(String)</h3><p>String底层是[]byte,它的len返回的是字节长度，所以len(“我”)!=1</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/355082331">Golang的String解析</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1hv411x7we?spm_id_from=333.999.0.0">幼麟实验室</a></p>
-<p><a target="_blank" rel="noopener" href="https://draveness.me/golang/docs/part2-foundation/ch03-datastructure/golang-string/#344-%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2">Draveness字符串解析</a></p>
+<h2 id="类型是什么"><a href="#类型是什么" class="headerlink" title="类型是什么"></a>类型是什么</h2><p>计算机只能理解0和1，只认识一堆存有0和1的寄存器，所以类型是编程语言基于汇编语言的一种抽象实现，它能够把我们写的类型<strong>值</strong>按照一种特定的方式转化为汇编语言。</p>
+<h2 id="类型系统是什么"><a href="#类型系统是什么" class="headerlink" title="类型系统是什么"></a>类型系统是什么</h2><p>任何语言都有自己的类型系统，任何“值”也都唯一的属于某种类型。</p>
+<p>一个“值”只有有自己的类型，才能被编译器所识别，从而正确的为其分配内存和使用。</p>
+<p>类型为编译器提供了两种信息：</p>
+<ol>
+<li>类型的规模，即需要为该种类型的“值”分配多少内存；</li>
+<li>内存的表示，即这段内存表示的是什么。</li>
+</ol>
+<p><strong>所以一个语言的类型系统指明：哪些操作对哪些类型是有效的。(一个类型允许进行哪些操作)用于强制这些二进制数据按照我们预期的值来解析，确保在一个整数的二进制格式上不会做任何非整数的操作，从而获取一些毫无意义的东西。</strong></p>
+<h2 id="GoLang类型元数据"><a href="#GoLang类型元数据" class="headerlink" title="GoLang类型元数据"></a>GoLang类型元数据</h2><p>类型元数据承载了一个类型的所有信息，每种数据的类型元数据全局唯一。如下图所示，第一个方框格为每个类型元数据的Header，存放了名字、对其边界等必备信息，中间的方框格用来存放一些补充信息，如果是自定义类型，则会有第三个方框格，记录类型的包路径、方法个数、和一个记录了方法元数据数组的指针。</p>
+<p><img src="/images/post1.png" alt="Alt text"></p>
+<p>一个[]String类型的元数据如下</p>
+<p><img src="/images/post2.png" alt="Alt text"></p>
+<h2 id="type-MyType1-int32和type-MyType2-int32的区别"><a href="#type-MyType1-int32和type-MyType2-int32的区别" class="headerlink" title="type MyType1 int32和type MyType2=int32的区别"></a>type MyType1 int32和type MyType2=int32的区别</h2><p>前者是类型别名写法不创建新的类型元数据，后者是创建新的自定义类型，会创建新的类型元数据</p>
+<p><img src="/images/post3.png" alt="Alt text"></p>
+<h2 id="命名类型和未命名类型"><a href="#命名类型和未命名类型" class="headerlink" title="命名类型和未命名类型"></a>命名类型和未命名类型</h2><p>具有名称的类型就是命名类型，例如：<code>int</code>, <code>int64</code>, <code>float32</code>, <code>string</code>, <code>bool</code>等。</p>
+<p>没有名称的类型就是未命名类型，例如数组，结构体，指针，函数，接口，切片，map，通道 都是未命名类型。【我的理解就是引用类型都是未命名类型】</p>
+<h2 id="底层类型"><a href="#底层类型" class="headerlink" title="底层类型"></a>底层类型</h2><p>GoLang中，每个类型都有自己的底层类型【我猜测就是类型元数据中的Head】，底层类型在类型转换和赋值、比较中扮演着重要的属性。</p>
+<ul>
+<li>底层类型为内置类型<code>bool</code>的类型称为<strong>布尔类型</strong>；</li>
+<li>底层类型为任一内置整数类型的类型称为<strong>整数类型</strong>；</li>
+<li>底层类型为内置类型<code>float32</code>或者<code>float64</code>的类型称为<strong>浮点数类型</strong>；</li>
+<li>底层类型为内置类型<code>complex64</code>或<code>complex128</code>的类型称为<strong>复数类型</strong>；</li>
+<li>整数类型、浮点数类型和复数类型统称为<strong>数字值类型</strong>；</li>
+<li>底层类型为内置类型<code>string</code>的类型称为<strong>字符串类型</strong>。</li>
+</ul>
+<h2 id="赋值条件"><a href="#赋值条件" class="headerlink" title="赋值条件"></a>赋值条件</h2><p>双方应该具有相同的基础类型，而且其中至少有一个不是命名类型(至少有一个是未命名变类型)。</p>
+<h2 id="reflect"><a href="#reflect" class="headerlink" title="reflect"></a>reflect</h2><p>反射的原理就是将暴露类型的元数据给我们用</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ce307b8e9772">深入研究Go(golang) Type类型系统</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/139347413">GO的类型系统和类型的方法</a></p>
+<p><a target="_blank" rel="noopener" href="https://gfw.go101.org/article/type-system-overview.html">Go101类型系统概述</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_36228538/article/details/115111509">GoLang类型系统</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1hv411x7we?p=12">幼麟实验室</a></p>
 
     </div>
 
@@ -289,13 +310,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/10/10/Map/" rel="prev" title="HashMap">
-      <i class="fa fa-chevron-left"></i> HashMap
+    <a href="/2021/10/12/TCP%E8%BF%9E%E6%8E%A5%E9%98%9F%E5%88%97/" rel="prev" title="TCP连接队列">
+      <i class="fa fa-chevron-left"></i> TCP连接队列
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/10/12/%E5%8A%A8%E6%80%81%E6%95%B0%E7%BB%84Slice/" rel="next" title="动态数组Slice">
-      动态数组Slice <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -354,7 +372,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">1.</span> <span class="nav-text">字符串</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">1.1.</span> <span class="nav-text">内存中的字符串</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">字符串的数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%8B%BC%E6%8E%A5"><span class="nav-number">1.3.</span> <span class="nav-text">字符串拼接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%92%8C-byte%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.4.</span> <span class="nav-text">字符串和[]byte的转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Len-String"><span class="nav-number">1.5.</span> <span class="nav-text">Len(String)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.7.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.</span> <span class="nav-text">类型是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">2.</span> <span class="nav-text">类型系统是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GoLang%E7%B1%BB%E5%9E%8B%E5%85%83%E6%95%B0%E6%8D%AE"><span class="nav-number">3.</span> <span class="nav-text">GoLang类型元数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#type-MyType1-int32%E5%92%8Ctype-MyType2-int32%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">4.</span> <span class="nav-text">type MyType1 int32和type MyType2&#x3D;int32的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E5%90%8D%E7%B1%BB%E5%9E%8B%E5%92%8C%E6%9C%AA%E5%91%BD%E5%90%8D%E7%B1%BB%E5%9E%8B"><span class="nav-number">5.</span> <span class="nav-text">命名类型和未命名类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%95%E5%B1%82%E7%B1%BB%E5%9E%8B"><span class="nav-number">6.</span> <span class="nav-text">底层类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%8B%E5%80%BC%E6%9D%A1%E4%BB%B6"><span class="nav-number">7.</span> <span class="nav-text">赋值条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reflect"><span class="nav-number">8.</span> <span class="nav-text">reflect</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">9.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
