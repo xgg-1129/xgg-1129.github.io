@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>GoLang字符串</title>
+    <url>/2021/10/11/GoLang%E5%AD%97%E7%AC%A6%E4%B8%B2/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><p>字符串的本质实际就是一片连续的内存空间，我们通常可以把他理解为一个字符数组，Go语言的字符串是一片只读的字节数组。</p>
+<h3 id="内存中的字符串"><a href="#内存中的字符串" class="headerlink" title="内存中的字符串"></a>内存中的字符串</h3><p>如果是代码中存在的字符串，编译器会将其标记成只读数据 <code>SRODATA</code>，假设我们有以下代码，其中包含了一个字符串，当我们将这段代码编译成汇编语言时，就能够看到 <code>hello</code> 字符串有一个 <code>SRODATA</code> 的标记</p>
+<p>//禁止内联生成汇编代码</p>
+<p>GOOS=linux GOARCH=amd64 go tool compile -S main.go</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	str := <span class="string">&quot;hello&quot;</span></span><br><span class="line">	<span class="built_in">println</span>([]<span class="keyword">byte</span>(str))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$ GOOS=linux GOARCH=amd64 <span class="keyword">go</span> tool compile -S main.<span class="keyword">go</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">go</span>.<span class="keyword">string</span>.<span class="string">&quot;hello&quot;</span> SRODATA dupok size=<span class="number">5</span></span><br><span class="line">	<span class="number">0x0000</span> <span class="number">68</span> <span class="number">65</span> <span class="number">6</span>c <span class="number">6</span>c <span class="number">6</span>f  </span><br></pre></td></tr></table></figure>
+
+<p>只读只意味着字符串会分配到只读的内存空间【数据段+代码=制度空间】，我们不可以直接修改 <code>string</code>类型变量的内存空间。</p>
+<h3 id="字符串的数据结构"><a href="#字符串的数据结构" class="headerlink" title="字符串的数据结构"></a>字符串的数据结构</h3><p>字符串在运行的时候用StringHeader表示</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> StringHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">	Data <span class="keyword">uintptr</span> <span class="comment">//数据指针</span></span><br><span class="line">	Len  <span class="keyword">int</span>	 <span class="comment">//字符串长度</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="字符串拼接"><a href="#字符串拼接" class="headerlink" title="字符串拼接"></a>字符串拼接</h3><p>字符串是只读空间，我们无法向字符串追加元素改变它的内存空间，所有字符串的修改操作都是通过拷贝实现的。字符串运行时调用copy将多个字符串拷贝到新的内存空间，这样的内存拷贝是比较消耗性能的。</p>
+<h3 id="字符串和-byte的转换"><a href="#字符串和-byte的转换" class="headerlink" title="字符串和[]byte的转换"></a>字符串和[]byte的转换</h3><p>字符串和[]byte底层内容都是一样的，但是[]byte是可读可写的【堆栈】，类型转换通常使用截断或者拷贝完成，像字符串和[]byte这样处于不同类型内存空间的数据转换时会产生内存拷贝。</p>
+<h3 id="Len-String"><a href="#Len-String" class="headerlink" title="Len(String)"></a>Len(String)</h3><p>String底层是[]byte,它的len返回的是字节长度，所以len(“我”)!=1</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://zhuanlan.zhihu.com/p/355082331">Golang的String解析</a></p>
+<p><a href="https://www.bilibili.com/video/BV1hv411x7we?spm_id_from=333.999.0.0">幼麟实验室</a></p>
+<p><a href="https://draveness.me/golang/docs/part2-foundation/ch03-datastructure/golang-string/#344-%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2">Draveness字符串解析</a></p>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>GoLang</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Go类型系统</title>
     <url>/2021/10/13/Go%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/</url>
     <content><![CDATA[<p>-</p>
@@ -41,47 +71,11 @@
 <p><a href="https://www.bilibili.com/video/BV1hv411x7we?p=12">幼麟实验室</a></p>
 ]]></content>
       <categories>
-        <category>语言学习</category>
+        <category>学习</category>
       </categories>
       <tags>
         <tag>GoLang</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>GoLang字符串</title>
-    <url>/2021/10/11/GoLang%E5%AD%97%E7%AC%A6%E4%B8%B2/</url>
-    <content><![CDATA[<p>-</p>
-<span id="more"></span>
-
-<h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><p>字符串的本质实际就是一片连续的内存空间，我们通常可以把他理解为一个字符数组，Go语言的字符串是一片只读的字节数组。</p>
-<h3 id="内存中的字符串"><a href="#内存中的字符串" class="headerlink" title="内存中的字符串"></a>内存中的字符串</h3><p>如果是代码中存在的字符串，编译器会将其标记成只读数据 <code>SRODATA</code>，假设我们有以下代码，其中包含了一个字符串，当我们将这段代码编译成汇编语言时，就能够看到 <code>hello</code> 字符串有一个 <code>SRODATA</code> 的标记</p>
-<p>//禁止内联生成汇编代码</p>
-<p>GOOS=linux GOARCH=amd64 go tool compile -S main.go</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	str := <span class="string">&quot;hello&quot;</span></span><br><span class="line">	<span class="built_in">println</span>([]<span class="keyword">byte</span>(str))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$ GOOS=linux GOARCH=amd64 <span class="keyword">go</span> tool compile -S main.<span class="keyword">go</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">go</span>.<span class="keyword">string</span>.<span class="string">&quot;hello&quot;</span> SRODATA dupok size=<span class="number">5</span></span><br><span class="line">	<span class="number">0x0000</span> <span class="number">68</span> <span class="number">65</span> <span class="number">6</span>c <span class="number">6</span>c <span class="number">6</span>f  </span><br></pre></td></tr></table></figure>
-
-<p>只读只意味着字符串会分配到只读的内存空间【数据段+代码=制度空间】，我们不可以直接修改 <code>string</code>类型变量的内存空间。</p>
-<h3 id="字符串的数据结构"><a href="#字符串的数据结构" class="headerlink" title="字符串的数据结构"></a>字符串的数据结构</h3><p>字符串在运行的时候用StringHeader表示</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> StringHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">	Data <span class="keyword">uintptr</span> <span class="comment">//数据指针</span></span><br><span class="line">	Len  <span class="keyword">int</span>	 <span class="comment">//字符串长度</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="字符串拼接"><a href="#字符串拼接" class="headerlink" title="字符串拼接"></a>字符串拼接</h3><p>字符串是只读空间，我们无法向字符串追加元素改变它的内存空间，所有字符串的修改操作都是通过拷贝实现的。字符串运行时调用copy将多个字符串拷贝到新的内存空间，这样的内存拷贝是比较消耗性能的。</p>
-<h3 id="字符串和-byte的转换"><a href="#字符串和-byte的转换" class="headerlink" title="字符串和[]byte的转换"></a>字符串和[]byte的转换</h3><p>字符串和[]byte底层内容都是一样的，但是[]byte是可读可写的【堆栈】，类型转换通常使用截断或者拷贝完成，像字符串和[]byte这样处于不同类型内存空间的数据转换时会产生内存拷贝。</p>
-<h3 id="Len-String"><a href="#Len-String" class="headerlink" title="Len(String)"></a>Len(String)</h3><p>String底层是[]byte,它的len返回的是字节长度，所以len(“我”)!=1</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://zhuanlan.zhihu.com/p/355082331">Golang的String解析</a></p>
-<p><a href="https://www.bilibili.com/video/BV1hv411x7we?spm_id_from=333.999.0.0">幼麟实验室</a></p>
-<p><a href="https://draveness.me/golang/docs/part2-foundation/ch03-datastructure/golang-string/#344-%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2">Draveness字符串解析</a></p>
-]]></content>
-      <categories>
-        <category>语言学习</category>
-      </categories>
-      <tags>
-        <tag>GoLang</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TCP连接队列</title>
-    <url>/2021/10/12/TCP%E8%BF%9E%E6%8E%A5%E9%98%9F%E5%88%97/</url>
-    <content><![CDATA[<p>-</p>
-<span id="more"></span>]]></content>
   </entry>
   <entry>
     <title>HashMap</title>
@@ -118,7 +112,7 @@
 <p><a href="https://www.bilibili.com/video/BV1Sp4y1U7dJ?spm_id_from=333.999.0.0">幼麟实验室</a></p>
 ]]></content>
       <categories>
-        <category>数据结构</category>
+        <category>学习</category>
       </categories>
       <tags>
         <tag>GoLang</tag>
@@ -144,6 +138,43 @@
 
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>TCP连接队列</title>
+    <url>/2021/10/12/TCP%E8%BF%9E%E6%8E%A5%E9%98%9F%E5%88%97/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>]]></content>
+  </entry>
+  <entry>
+    <title>内存对齐</title>
+    <url>/2021/10/14/post%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<h2 id="内存对齐概述"><a href="#内存对齐概述" class="headerlink" title="内存对齐概述"></a>内存对齐概述</h2><p>内存对齐就是将数据对齐到特定内存地址，提升处理器访问数据的速度，许多的体系结构都强制要求特定长度的数据类型进行特定的对齐。[其实这些编译器都会帮助我们完成，如果急着准备面试没必要看这个]</p>
+<h2 id="1-4-2-12"><a href="#1-4-2-12" class="headerlink" title="1+4+2 = 12 ?"></a>1+4+2 = 12 ?</h2><img src="/images/struct.png" width="40%"  />
+
+<h2 id="字"><a href="#字" class="headerlink" title="字"></a>字</h2><p>在我们程序员眼中的内存是一块<strong>字节数组</strong>，但是在CPU眼中是一块<strong>字数组</strong>，CPU的总线一次能传输固定大小的数据，这块数据的长度被称为<strong>字长/机器字长</strong>。<strong>字</strong>代表了CPU一次能加工和获取到的数据的最高字节数，字越大，CPU一次就能处理越多的数据。【cpu对访问任意内存字节的操作做了很多处理，例如你想访问的地址为1-8，字为8字节的cpu会进行2次寻址，第一次访问0-7取1-7，第二次访问8-15取7-8，然后将两个部分拼接起来】</p>
+<h2 id="内存对齐的原因"><a href="#内存对齐的原因" class="headerlink" title="内存对齐的原因"></a>内存对齐的原因</h2><ol>
+<li><p><strong>平台原因</strong>：不是所有的硬件平台都能访问任意地址上的任意数据的；某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常。</p>
+<p>很多 CPU（如基于 Alpha，IA-64，MIPS，和 SuperH 体系的）拒绝读取未对齐数据。当一个程序要求这些 CPU 读取未对齐数据时，这时 CPU 会进入异常处理状态并且通知程序不能继续执行。举个例子，在 ARMMIPS，和 SH 硬件平台上，当操作系统被要求存取一个未对齐数据时会默认给应用程序抛出硬件异常。所以，如果编译器不进行内存对齐，那在很多平台的上的开发将难以进行。那么，为什么这些 CPU 会拒绝读取未对齐数据？是因为未对齐的数据，会大大降低 CPU 的性能。</p>
+<ol>
+<li><strong>性能原因</strong>：数据结构(尤其是栈)应该尽可能地在自然边界上对齐。原因在于，为了访问未对齐的内存，处理器需要作两次内存访问；而对齐的内存访问仅需要一次访问。字节对齐主要是为了提高内存的访问效率。</li>
+</ol>
+<p>比如intel 32位cpu，每个总线周期都是从偶地址开始读取32位的内存数据，如果数据存放地址不是从偶数开始，则可能出现需要两个总线周期才能读取到想要的数据，因此需要在内存中存放数据时进行对齐。</p>
+</li>
+</ol>
+<h2 id="内存对齐的方法"><a href="#内存对齐的方法" class="headerlink" title="内存对齐的方法"></a>内存对齐的方法</h2><p>每种数据类型在不同平台下都有自己的对齐边界，对齐边界就是内存对齐的边界，它的规则和使用方法有点复杂。【知道了过一阵子也会忘掉，如果有需要再查资料吧】</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://zhuanlan.zhihu.com/p/140063999">一文轻松理解内存对齐</a></p>
+<p><a href="https://www.zhihu.com/question/27862634/answer/208895189">如何理解 struct 的内存对齐</a></p>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>GoLand</tag>
+        <tag>计算机组成原理</tag>
+      </tags>
   </entry>
   <entry>
     <title>动态数组Slice</title>
@@ -175,7 +206,7 @@
 <p><a href="https://zhuanlan.zhihu.com/p/61121325">深度解密Golang切片</a></p>
 ]]></content>
       <categories>
-        <category>语言学习</category>
+        <category>学习</category>
       </categories>
       <tags>
         <tag>GoLang</tag>
