@@ -24,21 +24,22 @@
 
   <meta name="description" content="-">
 <meta property="og:type" content="article">
-<meta property="og:title" content="闭包">
-<meta property="og:url" content="http://example.com/2021/10/15/Function-Value%E5%92%8C%E9%97%AD%E5%8C%85/index.html">
+<meta property="og:title" content="IO模型">
+<meta property="og:url" content="http://example.com/2021/10/15/IO%E6%A8%A1%E5%9E%8B/index.html">
 <meta property="og:site_name" content="等待无法改变任何事">
 <meta property="og:description" content="-">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/images/func1.png">
-<meta property="og:image" content="http://example.com/images/func2.png">
-<meta property="article:published_time" content="2021-10-15T07:51:20.000Z">
-<meta property="article:modified_time" content="2021-10-15T13:03:58.310Z">
+<meta property="og:image" content="https://oscimg.oschina.net/oscnet/f49d44d0f1ecf5b18f7090375aba41ebf2d.png">
+<meta property="article:published_time" content="2021-10-15T14:15:42.000Z">
+<meta property="article:modified_time" content="2021-10-15T16:04:52.229Z">
 <meta property="article:author" content="贤锅锅">
-<meta property="article:tag" content="GoLang">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="计算机网络">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/images/func1.png">
+<meta name="twitter:image" content="https://oscimg.oschina.net/oscnet/f49d44d0f1ecf5b18f7090375aba41ebf2d.png">
 
-<link rel="canonical" href="http://example.com/2021/10/15/Function-Value%E5%92%8C%E9%97%AD%E5%8C%85/">
+<link rel="canonical" href="http://example.com/2021/10/15/IO%E6%A8%A1%E5%9E%8B/">
 
 
 <script id="page-configurations">
@@ -51,7 +52,7 @@
   };
 </script>
 
-  <title>闭包 | 等待无法改变任何事</title>
+  <title>IO模型 | 等待无法改变任何事</title>
   
 
 
@@ -194,7 +195,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/15/Function-Value%E5%92%8C%E9%97%AD%E5%8C%85/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/15/IO%E6%A8%A1%E5%9E%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/Head.png">
@@ -207,7 +208,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          闭包
+          IO模型
         </h1>
 
         <div class="post-meta">
@@ -216,10 +217,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-10-15 15:51:20 / 修改时间：21:03:58" itemprop="dateCreated datePublished" datetime="2021-10-15T15:51:20+08:00">2021-10-15</time>
+              <time title="创建时间：2021-10-15 22:15:42" itemprop="dateCreated datePublished" datetime="2021-10-15T22:15:42+08:00">2021-10-15</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-10-16 00:04:52" itemprop="dateModified" datetime="2021-10-16T00:04:52+08:00">2021-10-16</time>
+              </span>
 
           <br>
             <span class="post-meta-item" title="本文字数">
@@ -227,14 +234,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>496</span>
+              <span>1.8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -249,18 +256,24 @@
         <p>-</p>
 <span id="more"></span>
 
-<h2 id="FunctionValue"><a href="#FunctionValue" class="headerlink" title="FunctionValue"></a>FunctionValue</h2><p> FunctionValue是个指针，但是他不是函数指针，它指向了一个结构体，结构体里有函数指针【函数指针指向了入口地址】，如果用FunctionValue调用函数，则FunctionValue先找到结构体，结构体通过函数指针调用函数。</p>
-<p>其实只要有函数指针就可以完成调用的函数，FunctionValue的意义事什么呢？</p>
-<p>答案就是：闭包</p>
-<h2 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h2><p>我个人对闭包的理解是，一个函数绑定了一个在外面定义的变量【这里简称绑定变量】。FunctionValue指向的结构体的作用不仅保存了函数指针，同时保存绑定变量的信息，把函数运行的上下文环境包裹起来。【这样看来闭包这个词还是很形象的】</p>
-<h3 id="闭包的几种情况"><a href="#闭包的几种情况" class="headerlink" title="闭包的几种情况"></a>闭包的几种情况</h3><h4 id="捕获不变的变量"><a href="#捕获不变的变量" class="headerlink" title="捕获不变的变量"></a>捕获不变的变量</h4><p>如果闭包函数绑定的变量不会改变，则直接在FunctionValue指向的结构体里，复制变量的拷贝即可。</p>
-<img src="/images/func1.png" width="60%"  />
-
-<h4 id="捕获改变的局部变量"><a href="#捕获改变的局部变量" class="headerlink" title="捕获改变的局部变量"></a>捕获改变的局部变量</h4><p>如果闭包函数需要绑定一个会改变的局部变量，则会把这个局部变量分配至堆【内存逃逸】，然后FunctionValue指向的结构体里复制这个堆变量的指针。</p>
-<img src="/images/func2.png" width="70%"  />
-
-<h4 id="捕获参数"><a href="#捕获参数" class="headerlink" title="捕获参数"></a>捕获参数</h4><p>如果需要绑定传递的参数，则会在栈和堆上都分配 参数，但是会绑定堆上的那个参数。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1hv411x7we?p=7">幼麟实验室</a></p>
+<h2 id="IO"><a href="#IO" class="headerlink" title="IO"></a>IO</h2><p>IO (Input/Output，输入/输出)即数据的读取（接收）或写入（发送）操作，通常用户进程中的一个完整IO分为两阶段：用户进程空间&lt;–&gt;内核空间、内核空间&lt;–&gt;设备空间（磁盘、网络等）。IO有内存IO、网络IO和磁盘IO三种，通常我们说的IO指的是后两者。</p>
+<p>LINUX中进程无法直接操作I/O设备，其必须通过系统调用请求kernel来协助完成I/O动作；内核会为每个I/O设备维护一个缓冲区。【Read和Write没有用户缓冲区，但是高级语言的标准IO一般都是有缓冲区的】</p>
+<h2 id="阻塞IO"><a href="#阻塞IO" class="headerlink" title="阻塞IO"></a>阻塞IO</h2><p>阻塞IO顾名思义，这是一种会令自己陷入阻塞状态的IO，所谓阻塞IO就是当进程发起读取数据申请时，在内核缓冲区没有准备好数据之前，进程会一直处于等待数据状态，直到内核把数据准备好了或者发送错误才会返回。【格局放大些，把阻塞IO也理解成阻塞的系统调用，listen、accept都是阻塞的系统调用】</p>
+<p><strong>缺点：</strong>阻塞期间，进程将无法执行任何运算或响应其他任何的网络请求。</p>
+<h2 id="非阻塞IO"><a href="#非阻塞IO" class="headerlink" title="非阻塞IO"></a>非阻塞IO</h2><p>所谓非阻塞IO就是当应进程发起读取数据申请时，如果内核缓冲区没有数据会返回一个错误标识，应用进程在得到error后，过一段时间再发送读数据请求。在两次发送请求的时间段，进程可以先做别的事情。在非阻塞式IO中，用户进程其实是需要不断的主动询问kernel数据准备好了没有。</p>
+<p><strong>缺点：</strong>非阻塞IO性能应该比阻塞IO还差，阻塞IO没数据会进入阻塞状态把CPU让给别的进程，非阻塞IO则会一直霸占的CPU资源，由于轮询的原因还可能会造成多次的用户态-内核态的转换。</p>
+<h2 id="IO复用【内核负责轮询】"><a href="#IO复用【内核负责轮询】" class="headerlink" title="IO复用【内核负责轮询】"></a>IO复用【内核负责轮询】</h2><p>IO复用模型的思路就是系统提供了一种函数可以同时监控多个fd的操作，这个函数就是我们常说到的select、poll、epoll函数，有了这个函数后，应用线程通过调用select函数就可以同时监控多个fd ,select函数监控的fd中只要有任何一个数据状态准备就绪了，select函数就会返回可读状态，这时询问线程再去通知处理数据的线程。从而达到不必为每个fd创建一个对应的监控线程，从而减少线程资源创建的目的。【协程+IO复用能有效处理高并发】</p>
+<p><strong>优点：</strong>增加了单个进程处理网络连接的能力</p>
+<p><strong>缺点：</strong>没有完全解决阻塞问题，fd少的情况下，和阻塞IO性能差别不大，甚至更差，因为IO复用完成一次读数据需要2次系统调用。【异步IOyyds】</p>
+<h2 id="信号驱动IO【软中断IO】"><a href="#信号驱动IO【软中断IO】" class="headerlink" title="信号驱动IO【软中断IO】"></a>信号驱动IO【软中断IO】</h2><p>复用IO模型解决了一个线程可以监控多个fd的问题，但是select是采用轮询的方式来监控多个fd的，通过不断的轮询fd的可读状态来知道是否就可读的数据，而无脑的轮询就显得有点暴力，因为大部分情况下的轮询都是无效的，所以有人就想，能不能不要我总是去问你是否数据准备就绪，能不能我发出请求后等你数据准备好了就通知我，所以就衍生了信号驱动IO模型。【中断工作思想】</p>
+<p><strong>优点：</strong>避免了IO复用里面大量的轮询。</p>
+<h2 id="异步IO【零阻塞IO】"><a href="#异步IO【零阻塞IO】" class="headerlink" title="异步IO【零阻塞IO】"></a>异步IO【零阻塞IO】</h2><p>异步IO下，进程只需要向内核发送一个read 请求,告诉内核它要读取数据后即刻返回；内核收到请求后会建立一个信号联系，当数据准备就绪，内核会主动把数据从内核复制到用户空间，等所有操作都完成之后，内核会发起一个通知告诉应用，这种模式为异步IO模型。异步IO是真正非阻塞的，它不会对请求进程产生任何的阻塞。【异步IO由POSIX规范定义，很少有操作系统能实现它们。】</p>
+<h2 id="Linux异步IO"><a href="#Linux异步IO" class="headerlink" title="Linux异步IO"></a>Linux异步IO</h2><p>Linux 下的 Posix AIO 是由 glibc 在 user space 用多线程+同步阻塞 IO 模拟的，效率还远不如 epoll。FreeBSD 倒是有原生支持 Posix AIO 的 Kernel Mod。</p>
+<p>真正意义上的异步 IO 是比上述 epoll 等多路复用的非阻塞 IO 机制性能更好的通信方式，也是最贴近现代硬件 DMA + 中断工作方式的 IO 编程模型，可以做到内存零拷贝等非阻塞 IO 做不到的性能优化。</p>
+<p>Linux 自己其实也有 Kernel 级的 AIO ABI（io_submit），不过跟 Posix AIO API 不兼容，而且还有很多问题，比如：只支持以指定标识（O_DIRECT）打开的文件，不支持 socket 句柄等等。相信未来 Linux AIO 进一步完善以后，glibc 应该会基于这组 syscalls 实现原生 Posix AIO 接口。</p>
+<p>作者：白杨<br>链接：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/421584363/answer/1478781492">https://www.zhihu.com/question/421584363/answer/1478781492</a><br>来源：知乎</p>
+<h2 id="5种IO的比较图"><a href="#5种IO的比较图" class="headerlink" title="5种IO的比较图"></a>5种IO的比较图</h2><p><img src="https://oscimg.oschina.net/oscnet/f49d44d0f1ecf5b18f7090375aba41ebf2d.png" alt="img"></p>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p>UXIX环境编程</p>
 
     </div>
 
@@ -270,7 +283,9 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/GoLang/" rel="tag"># GoLang</a>
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag"># 计算机网络</a>
           </div>
 
         
@@ -279,12 +294,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/10/15/Defer/" rel="prev" title="Defer">
-      <i class="fa fa-chevron-left"></i> Defer
+    <a href="/2021/10/15/Function-Value%E5%92%8C%E9%97%AD%E5%8C%85/" rel="prev" title="闭包">
+      <i class="fa fa-chevron-left"></i> 闭包
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/10/15/IO%E6%A8%A1%E5%9E%8B/" rel="next" title="IO模型">
-      IO模型 <i class="fa fa-chevron-right"></i>
+    <a href="/2021/10/16/IPC%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/" rel="next" title="IPC进程通信">
+      IPC进程通信 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -344,7 +359,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#FunctionValue"><span class="nav-number">1.</span> <span class="nav-text">FunctionValue</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AD%E5%8C%85"><span class="nav-number">2.</span> <span class="nav-text">闭包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AD%E5%8C%85%E7%9A%84%E5%87%A0%E7%A7%8D%E6%83%85%E5%86%B5"><span class="nav-number">2.1.</span> <span class="nav-text">闭包的几种情况</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%95%E8%8E%B7%E4%B8%8D%E5%8F%98%E7%9A%84%E5%8F%98%E9%87%8F"><span class="nav-number">2.1.1.</span> <span class="nav-text">捕获不变的变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%95%E8%8E%B7%E6%94%B9%E5%8F%98%E7%9A%84%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F"><span class="nav-number">2.1.2.</span> <span class="nav-text">捕获改变的局部变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%95%E8%8E%B7%E5%8F%82%E6%95%B0"><span class="nav-number">2.1.3.</span> <span class="nav-text">捕获参数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#IO"><span class="nav-number">1.</span> <span class="nav-text">IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%BB%E5%A1%9EIO"><span class="nav-number">2.</span> <span class="nav-text">阻塞IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E9%98%BB%E5%A1%9EIO"><span class="nav-number">3.</span> <span class="nav-text">非阻塞IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IO%E5%A4%8D%E7%94%A8%E3%80%90%E5%86%85%E6%A0%B8%E8%B4%9F%E8%B4%A3%E8%BD%AE%E8%AF%A2%E3%80%91"><span class="nav-number">4.</span> <span class="nav-text">IO复用【内核负责轮询】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%A9%B1%E5%8A%A8IO%E3%80%90%E8%BD%AF%E4%B8%AD%E6%96%ADIO%E3%80%91"><span class="nav-number">5.</span> <span class="nav-text">信号驱动IO【软中断IO】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5IO%E3%80%90%E9%9B%B6%E9%98%BB%E5%A1%9EIO%E3%80%91"><span class="nav-number">6.</span> <span class="nav-text">异步IO【零阻塞IO】</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E5%BC%82%E6%AD%A5IO"><span class="nav-number">7.</span> <span class="nav-text">Linux异步IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5%E7%A7%8DIO%E7%9A%84%E6%AF%94%E8%BE%83%E5%9B%BE"><span class="nav-number">8.</span> <span class="nav-text">5种IO的比较图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%EF%BC%9A"><span class="nav-number">9.</span> <span class="nav-text">参考资料：</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
