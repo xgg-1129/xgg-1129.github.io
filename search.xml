@@ -1,18 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Defer</title>
+    <url>/2021/10/15/Defer/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<h2 id="延迟调用"><a href="#延迟调用" class="headerlink" title="延迟调用"></a>延迟调用</h2><p>GoLang的return会被编程成两条语句，一条是给返回值传值【defer可以修改返回值】，第二条是退出函数。Defer能够向当前函数注册一些稍后执行的函数，这些函数在退出函数前执行，作为一个编程语言中的关键字，`defer的实现一定是由编译器和运行时共同完成的。</p>
+<h2 id="Defer链表栈"><a href="#Defer链表栈" class="headerlink" title="Defer链表栈"></a>Defer链表栈</h2><p>defer关键字在 Go 语言源代码中对应的数据结构：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> _defer <span class="keyword">struct</span> &#123;</span><br><span class="line">	siz       <span class="keyword">int32</span></span><br><span class="line">	started   <span class="keyword">bool</span></span><br><span class="line">	openDefer <span class="keyword">bool</span></span><br><span class="line">	sp        <span class="keyword">uintptr</span></span><br><span class="line">	pc        <span class="keyword">uintptr</span></span><br><span class="line">	fn        *funcval   <span class="comment">//注册的函数</span></span><br><span class="line">	_panic    *_panic</span><br><span class="line">	link      *_defer   <span class="comment">//结点相互连接成一个链表</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>GoLang是使用头插法在链表前面添加defer结点，然后从头节点开始执行注册的defer结点函数【链表栈】，所以defer的调用顺序是先进后出的顺序。</p>
+<h2 id="Defer参数"><a href="#Defer参数" class="headerlink" title="Defer参数"></a>Defer参数</h2><ul>
+<li>函数的参数会被预先计算；<ul>
+<li>调用 <a href="https://draveness.me/golang/tree/runtime.deferproc"><code>runtime.deferproc</code></a> 函数创建新的延迟调用时就会立刻拷贝函数的参数，函数的参数不会等到真正执行时计算；</li>
+</ul>
+</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://draveness.me/golang/docs/part2-foundation/ch05-keyword/golang-defer/#53-defer">Draveness</a></p>
+<p><a href="https://www.bilibili.com/video/BV1hv411x7we?p=10">幼麟实验室</a></p>
+]]></content>
+  </entry>
+  <entry>
     <title>C10K问题</title>
     <url>/2021/10/14/C10K%E9%97%AE%E9%A2%98/</url>
     <content><![CDATA[<p>-</p>
 <span id="more"></span>
 <p><a href="https://zhuanlan.zhihu.com/p/51078499">https://zhuanlan.zhihu.com/p/51078499</a></p>
 ]]></content>
-  </entry>
-  <entry>
-    <title>Defer</title>
-    <url>/2021/10/15/Defer/</url>
-    <content><![CDATA[<p>-</p>
-<span id="more"></span>]]></content>
   </entry>
   <entry>
     <title>GoLang字符串</title>
@@ -115,6 +130,37 @@
       </tags>
   </entry>
   <entry>
+    <title>IO模型</title>
+    <url>/2021/10/15/IO%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<h2 id="IO"><a href="#IO" class="headerlink" title="IO"></a>IO</h2><p>IO (Input/Output，输入/输出)即数据的读取（接收）或写入（发送）操作，通常用户进程中的一个完整IO分为两阶段：用户进程空间&lt;–&gt;内核空间、内核空间&lt;–&gt;设备空间（磁盘、网络等）。IO有内存IO、网络IO和磁盘IO三种，通常我们说的IO指的是后两者。</p>
+<p>LINUX中进程无法直接操作I/O设备，其必须通过系统调用请求kernel来协助完成I/O动作；内核会为每个I/O设备维护一个缓冲区。【Read和Write没有用户缓冲区，但是高级语言的标准IO一般都是有缓冲区的】</p>
+<h2 id="阻塞IO"><a href="#阻塞IO" class="headerlink" title="阻塞IO"></a>阻塞IO</h2><p>阻塞IO顾名思义，这是一种会令自己陷入阻塞状态的IO，所谓阻塞IO就是当进程发起读取数据申请时，在内核缓冲区没有准备好数据之前，进程会一直处于等待数据状态，直到内核把数据准备好了或者发送错误才会返回。【格局放大些，把阻塞IO也理解成阻塞的系统调用，listen、accept都是阻塞的系统调用】</p>
+<p><strong>缺点：</strong>阻塞期间，进程将无法执行任何运算或响应其他任何的网络请求。</p>
+<h2 id="非阻塞IO"><a href="#非阻塞IO" class="headerlink" title="非阻塞IO"></a>非阻塞IO</h2><p>所谓非阻塞IO就是当应进程发起读取数据申请时，如果内核缓冲区没有数据会返回一个错误标识，应用进程在得到error后，过一段时间再发送读数据请求。在两次发送请求的时间段，进程可以先做别的事情。在非阻塞式IO中，用户进程其实是需要不断的主动询问kernel数据准备好了没有。</p>
+<p><strong>缺点：</strong>非阻塞IO性能应该比阻塞IO还差，阻塞IO没数据会进入阻塞状态把CPU让给别的进程，非阻塞IO则会一直霸占的CPU资源，由于轮询的原因还可能会造成多次的用户态-内核态的转换。</p>
+<h2 id="IO复用【内核负责轮询】"><a href="#IO复用【内核负责轮询】" class="headerlink" title="IO复用【内核负责轮询】"></a>IO复用【内核负责轮询】</h2><p>IO复用模型的思路就是系统提供了一种函数可以同时监控多个fd的操作，这个函数就是我们常说到的select、poll、epoll函数，有了这个函数后，应用线程通过调用select函数就可以同时监控多个fd ,select函数监控的fd中只要有任何一个数据状态准备就绪了，select函数就会返回可读状态，这时询问线程再去通知处理数据的线程。从而达到不必为每个fd创建一个对应的监控线程，从而减少线程资源创建的目的。【协程+IO复用能有效处理高并发】</p>
+<p><strong>优点：</strong>增加了单个进程处理网络连接的能力</p>
+<p><strong>缺点：</strong>没有完全解决阻塞问题，fd少的情况下，和阻塞IO性能差别不大，甚至更差，因为IO复用完成一次读数据需要2次系统调用。【异步IOyyds】</p>
+<h2 id="信号驱动IO【软中断IO】"><a href="#信号驱动IO【软中断IO】" class="headerlink" title="信号驱动IO【软中断IO】"></a>信号驱动IO【软中断IO】</h2><p>复用IO模型解决了一个线程可以监控多个fd的问题，但是select是采用轮询的方式来监控多个fd的，通过不断的轮询fd的可读状态来知道是否就可读的数据，而无脑的轮询就显得有点暴力，因为大部分情况下的轮询都是无效的，所以有人就想，能不能不要我总是去问你是否数据准备就绪，能不能我发出请求后等你数据准备好了就通知我，所以就衍生了信号驱动IO模型。【中断工作思想】</p>
+<p><strong>优点：</strong>避免了IO复用里面大量的轮询。</p>
+<h2 id="异步IO【零阻塞IO】"><a href="#异步IO【零阻塞IO】" class="headerlink" title="异步IO【零阻塞IO】"></a>异步IO【零阻塞IO】</h2><p>异步IO下，进程只需要向内核发送一个read 请求,告诉内核它要读取数据后即刻返回；内核收到请求后会建立一个信号联系，当数据准备就绪，内核会主动把数据从内核复制到用户空间，等所有操作都完成之后，内核会发起一个通知告诉应用，这种模式为异步IO模型。异步IO是真正非阻塞的，它不会对请求进程产生任何的阻塞。【异步IO由POSIX规范定义，很少有操作系统能实现它们。】</p>
+<h2 id="Linux异步IO"><a href="#Linux异步IO" class="headerlink" title="Linux异步IO"></a>Linux异步IO</h2><p>Linux 下的 Posix AIO 是由 glibc 在 user space 用多线程+同步阻塞 IO 模拟的，效率还远不如 epoll。FreeBSD 倒是有原生支持 Posix AIO 的 Kernel Mod。</p>
+<p>真正意义上的异步 IO 是比上述 epoll 等多路复用的非阻塞 IO 机制性能更好的通信方式，也是最贴近现代硬件 DMA + 中断工作方式的 IO 编程模型，可以做到内存零拷贝等非阻塞 IO 做不到的性能优化。</p>
+<p>Linux 自己其实也有 Kernel 级的 AIO ABI（io_submit），不过跟 Posix AIO API 不兼容，而且还有很多问题，比如：只支持以指定标识（O_DIRECT）打开的文件，不支持 socket 句柄等等。相信未来 Linux AIO 进一步完善以后，glibc 应该会基于这组 syscalls 实现原生 Posix AIO 接口。</p>
+<p>作者：白杨<br>链接：<a href="https://www.zhihu.com/question/421584363/answer/1478781492">https://www.zhihu.com/question/421584363/answer/1478781492</a><br>来源：知乎</p>
+<h2 id="5种IO的比较图"><a href="#5种IO的比较图" class="headerlink" title="5种IO的比较图"></a>5种IO的比较图</h2><p><img src="https://oscimg.oschina.net/oscnet/f49d44d0f1ecf5b18f7090375aba41ebf2d.png" alt="img"></p>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p>UXIX环境编程</p>
+]]></content>
+      <tags>
+        <tag>操作系统</tag>
+        <tag>Linux</tag>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>IPC进程通信</title>
     <url>/2021/10/16/IPC%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/</url>
     <content><![CDATA[<p>-</p>
@@ -148,10 +194,10 @@
 <p>有名管道：有名管道是为了解决无名管道只能用于近亲进程之间通信的缺陷而设计的。命名管道是建立在实际的磁盘介质或文件系统（而不是只存在于内存中）上有自己名字的文件，任何进程可以在任何时间通过文件名或路径名与该文件建立联系。为了实现命名管道，引入了一种新的文件类型——FIFO文件（遵循先进先出的原则）。实现一个命名管道实际上就是实现一个FIFO文件。命名管道一旦建立，之后它的读、写以及关闭操作都与普通管道完全相同。虽然FIFO文件的inode节点在磁盘上，但是仅是一个节点而已，文件的数据还是存在于内存缓冲页面中，和普通管道相同。<a href="https://blog.csdn.net/yxtxiaotian/article/details/69568774">引自</a></p>
 <h3 id="GoLang管道"><a href="#GoLang管道" class="headerlink" title="GoLang管道"></a>GoLang管道</h3><p>API：在os包里</p>
 <p>作用：创建命名管道<br>返回值：<br>    r *File  管道输出端<br>    w *File  管道输入端<br>    err error 可能发生的错误<br>注意：命名管道的读/写必须同时进行，否则会阻塞到读/写<br>func Pipe() (r *File, w *File, err error)</p>
-<h2 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h2><p>信号量主要是用来<strong>保护共享资源</strong>，使得资源在一个时刻只有一个进程（线程）所拥有，<strong>信号量一般用来做同步。</strong><br>进程可以根据它判定是否能够访问某些共享资源，同时，进程也可以修改该标志。除了用于访问控制外，还可用于进程同步。</p>
+<h2 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h2><p>信号量主要是用来<strong>保护共享资源</strong>，使得资源在一个时刻只有一个进程（线程）所拥有，<strong>信号量通常配合共享内存一起用，保证共享内存数据的一致性。</strong><br>进程可以根据它判定是否能够访问某些共享资源，同时，进程也可以修改该标志。除了用于访问控制外，还可用于进程同步。</p>
 <p>信号量有以下两种类型：</p>
 <ul>
-<li><strong>二值信号量</strong>： 最简单的信号量形式，信号量的值只能取0或1，类似于互斥锁。 注：二值信号量能够实现互斥锁的功能，但两者的关注内容不同。信号量强调共享资源，只要共享资源可用，其他进程同样可以修改信号量的值；互斥锁更强调进程，占用资源的进程使用完资源后，必须由进程本身来解锁。</li>
+<li><strong>二值信号量</strong>： 也称互斥信号量，最简单的信号量形式，信号量的值只能取0或1，类似于互斥锁。 注：二值信号量能够实现互斥锁的功能，但两者的关注内容不同。信号量强调共享资源，只要共享资源可用，其他进程同样可以修改信号量的值；互斥锁更强调进程，占用资源的进程使用完资源后，必须由进程本身来解锁。【实现进程互斥】</li>
 <li><strong>计算信号量</strong>：信号量的值可以取任意非负值（当然受内核本身的约束）。</li>
 </ul>
 <p>Socket</p>
@@ -166,80 +212,6 @@
       <tags>
         <tag>GoLang</tag>
         <tag>操作系统</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>IO模型</title>
-    <url>/2021/10/15/IO%E6%A8%A1%E5%9E%8B/</url>
-    <content><![CDATA[<p>-</p>
-<span id="more"></span>
-
-<h2 id="IO"><a href="#IO" class="headerlink" title="IO"></a>IO</h2><p>IO (Input/Output，输入/输出)即数据的读取（接收）或写入（发送）操作，通常用户进程中的一个完整IO分为两阶段：用户进程空间&lt;–&gt;内核空间、内核空间&lt;–&gt;设备空间（磁盘、网络等）。IO有内存IO、网络IO和磁盘IO三种，通常我们说的IO指的是后两者。</p>
-<p>LINUX中进程无法直接操作I/O设备，其必须通过系统调用请求kernel来协助完成I/O动作；内核会为每个I/O设备维护一个缓冲区。【Read和Write没有用户缓冲区，但是高级语言的标准IO一般都是有缓冲区的】</p>
-<h2 id="阻塞IO"><a href="#阻塞IO" class="headerlink" title="阻塞IO"></a>阻塞IO</h2><p>阻塞IO顾名思义，这是一种会令自己陷入阻塞状态的IO，所谓阻塞IO就是当进程发起读取数据申请时，在内核缓冲区没有准备好数据之前，进程会一直处于等待数据状态，直到内核把数据准备好了或者发送错误才会返回。【格局放大些，把阻塞IO也理解成阻塞的系统调用，listen、accept都是阻塞的系统调用】</p>
-<p><strong>缺点：</strong>阻塞期间，进程将无法执行任何运算或响应其他任何的网络请求。</p>
-<h2 id="非阻塞IO"><a href="#非阻塞IO" class="headerlink" title="非阻塞IO"></a>非阻塞IO</h2><p>所谓非阻塞IO就是当应进程发起读取数据申请时，如果内核缓冲区没有数据会返回一个错误标识，应用进程在得到error后，过一段时间再发送读数据请求。在两次发送请求的时间段，进程可以先做别的事情。在非阻塞式IO中，用户进程其实是需要不断的主动询问kernel数据准备好了没有。</p>
-<p><strong>缺点：</strong>非阻塞IO性能应该比阻塞IO还差，阻塞IO没数据会进入阻塞状态把CPU让给别的进程，非阻塞IO则会一直霸占的CPU资源，由于轮询的原因还可能会造成多次的用户态-内核态的转换。</p>
-<h2 id="IO复用【内核负责轮询】"><a href="#IO复用【内核负责轮询】" class="headerlink" title="IO复用【内核负责轮询】"></a>IO复用【内核负责轮询】</h2><p>IO复用模型的思路就是系统提供了一种函数可以同时监控多个fd的操作，这个函数就是我们常说到的select、poll、epoll函数，有了这个函数后，应用线程通过调用select函数就可以同时监控多个fd ,select函数监控的fd中只要有任何一个数据状态准备就绪了，select函数就会返回可读状态，这时询问线程再去通知处理数据的线程。从而达到不必为每个fd创建一个对应的监控线程，从而减少线程资源创建的目的。【协程+IO复用能有效处理高并发】</p>
-<p><strong>优点：</strong>增加了单个进程处理网络连接的能力</p>
-<p><strong>缺点：</strong>没有完全解决阻塞问题，fd少的情况下，和阻塞IO性能差别不大，甚至更差，因为IO复用完成一次读数据需要2次系统调用。【异步IOyyds】</p>
-<h2 id="信号驱动IO【软中断IO】"><a href="#信号驱动IO【软中断IO】" class="headerlink" title="信号驱动IO【软中断IO】"></a>信号驱动IO【软中断IO】</h2><p>复用IO模型解决了一个线程可以监控多个fd的问题，但是select是采用轮询的方式来监控多个fd的，通过不断的轮询fd的可读状态来知道是否就可读的数据，而无脑的轮询就显得有点暴力，因为大部分情况下的轮询都是无效的，所以有人就想，能不能不要我总是去问你是否数据准备就绪，能不能我发出请求后等你数据准备好了就通知我，所以就衍生了信号驱动IO模型。【中断工作思想】</p>
-<p><strong>优点：</strong>避免了IO复用里面大量的轮询。</p>
-<h2 id="异步IO【零阻塞IO】"><a href="#异步IO【零阻塞IO】" class="headerlink" title="异步IO【零阻塞IO】"></a>异步IO【零阻塞IO】</h2><p>异步IO下，进程只需要向内核发送一个read 请求,告诉内核它要读取数据后即刻返回；内核收到请求后会建立一个信号联系，当数据准备就绪，内核会主动把数据从内核复制到用户空间，等所有操作都完成之后，内核会发起一个通知告诉应用，这种模式为异步IO模型。异步IO是真正非阻塞的，它不会对请求进程产生任何的阻塞。【异步IO由POSIX规范定义，很少有操作系统能实现它们。】</p>
-<h2 id="Linux异步IO"><a href="#Linux异步IO" class="headerlink" title="Linux异步IO"></a>Linux异步IO</h2><p>Linux 下的 Posix AIO 是由 glibc 在 user space 用多线程+同步阻塞 IO 模拟的，效率还远不如 epoll。FreeBSD 倒是有原生支持 Posix AIO 的 Kernel Mod。</p>
-<p>真正意义上的异步 IO 是比上述 epoll 等多路复用的非阻塞 IO 机制性能更好的通信方式，也是最贴近现代硬件 DMA + 中断工作方式的 IO 编程模型，可以做到内存零拷贝等非阻塞 IO 做不到的性能优化。</p>
-<p>Linux 自己其实也有 Kernel 级的 AIO ABI（io_submit），不过跟 Posix AIO API 不兼容，而且还有很多问题，比如：只支持以指定标识（O_DIRECT）打开的文件，不支持 socket 句柄等等。相信未来 Linux AIO 进一步完善以后，glibc 应该会基于这组 syscalls 实现原生 Posix AIO 接口。</p>
-<p>作者：白杨<br>链接：<a href="https://www.zhihu.com/question/421584363/answer/1478781492">https://www.zhihu.com/question/421584363/answer/1478781492</a><br>来源：知乎</p>
-<h2 id="5种IO的比较图"><a href="#5种IO的比较图" class="headerlink" title="5种IO的比较图"></a>5种IO的比较图</h2><p><img src="https://oscimg.oschina.net/oscnet/f49d44d0f1ecf5b18f7090375aba41ebf2d.png" alt="img"></p>
-<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p>UXIX环境编程</p>
-]]></content>
-      <tags>
-        <tag>操作系统</tag>
-        <tag>Linux</tag>
-        <tag>计算机网络</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>HashMap</title>
-    <url>/2021/10/10/Map/</url>
-    <content><![CDATA[<p>-</p>
-<span id="more"></span>
-
-<h3 id="map是什么？"><a href="#map是什么？" class="headerlink" title="map是什么？"></a>map是什么？</h3><p>map是一种通过key获取value 的抽象数据结构，通常基于哈希表或者搜索树实现，哈希表平均查找速度快O(1),最快是O(N)，自平衡搜索树稳定 O(logN)，但是搜索树会进行很多为了维持自己的平衡的操作，所以map一般基于HashTable实现。</p>
-<h3 id="设计一个哈希表需要考虑哪些因素"><a href="#设计一个哈希表需要考虑哪些因素" class="headerlink" title="设计一个哈希表需要考虑哪些因素"></a>设计一个哈希表需要考虑哪些因素</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">2.1哈希函数如何设计？合理的哈希函数能够提高每个内存的命中和减少哈希碰撞</span><br><span class="line">2.2如何解决哈希冲突？用树还是红黑树？【应该没有语言会用探测法解决哈希冲突吧】</span><br><span class="line">2.3负载因子的大小如何设置，设置为多大才合理？</span><br><span class="line">2.4如何扩容？</span><br></pre></td></tr></table></figure>
-
-<h3 id="一个基于简单拉链法实现的HashMap"><a href="#一个基于简单拉链法实现的HashMap" class="headerlink" title="一个基于简单拉链法实现的HashMap"></a>一个基于简单拉链法实现的HashMap</h3><p>HashMap结构如下,<a href="https://github.com/xgg-1129/XggContainer/tree/master/HashTable">代码</a></p>
-<p>取模法寻址过程为  hash(key) % size</p>
-<p><img src="/images/HashMap.png" alt="Alt text"></p>
-<h3 id="Golang中基于哈希表实现的Map"><a href="#Golang中基于哈希表实现的Map" class="headerlink" title="Golang中基于哈希表实现的Map"></a>Golang中基于哈希表实现的Map</h3><p><img src="https://pic2.zhimg.com/v2-0178a76f87bb68fd7a645e6885e17525_b.jpg" alt="Alt text"></p>
-<p>GoLang的数组存储的不是直接存储一个键值对，而是存储一个bucket，bucket里面存储了8个键值对信息。</p>
-<h4 id="定位函数的设计"><a href="#定位函数的设计" class="headerlink" title="定位函数的设计"></a>定位函数的设计</h4><p>定位函数一般有取模法和与运算，Golang采用的是与运算的设计方案，这种方案要求哈希数组的个数必须是2的整数次幂，这样能够确保不会出现空桶。</p>
-<h4 id="链表哈希冲突"><a href="#链表哈希冲突" class="headerlink" title="链表哈希冲突"></a>链表哈希冲突</h4><p>golang用链表解决哈希冲突</p>
-<h4 id="寻址过程"><a href="#寻址过程" class="headerlink" title="寻址过程"></a>寻址过程</h4><p>key 经过哈希计算后得到哈希值，共 64 个 bit 位（64位机，32位机就不讨论了，现在主流都是64位机），计算它到底要落在哪个桶时，只会用到最后 B 个 bit 位。还记得前面提到过的 B 吗？如果 B = 5，那么桶的数量，也就是 buckets 数组的长度是 2^5 = 32。</p>
-<p>例如，现在有一个 key 经过哈希函数计算后，得到的哈希结果是：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">10010111 | 000011110110110010001111001010100010010110010101010 │ 01010</span><br></pre></td></tr></table></figure>
-
-<p>用最后的 5 个 bit 位，也就是 <code>01010</code>，值为 10，也就是 10 号桶。这个操作实际上就是取余操作，但是取余开销太大，所以代码实现上用的位操作代替。</p>
-<p>再用哈希值的高 8 位，找到此 key 在 bucket 中的位置，这是在寻找已有的 key。最开始桶内还没有 key，新加入的 key 会找到第一个空位，放入。</p>
-<p>buckets 编号就是桶编号，当两个不同的 key 落在同一个桶中，也就是发生了哈希冲突。冲突的解决手段是用链表法：在 bucket 中，从前往后找到第一个空位。这样，在查找某个 key 时，先找到对应的桶，再去遍历 bucket 中的 key。</p>
-<p>key定位流程图</p>
-<p><img src="https://pic3.zhimg.com/v2-dcc95d8e32ba33275a26136749b909fe_b.jpg" alt="img"></p>
-<h4 id="扩容机制"><a href="#扩容机制" class="headerlink" title="扩容机制"></a>扩容机制</h4><p>map 扩容需要将原有的 key/value 重新搬迁到新的内存地址，如果一次性把大量的 key/value 需要搬迁，会非常影响性能。因此 Go map 的扩容采取了一种称为“渐进式”地方式，原有的 key 并不会一次性搬迁完毕，每次最多只会搬迁 2 个 bucket。而且，golang的扩容机智，一定会将golang的旧桶分裂到二个新桶，减少了哈希冲突的概率。</p>
-<h4 id="map可以一边遍历一边删除吗"><a href="#map可以一边遍历一边删除吗" class="headerlink" title="map可以一边遍历一边删除吗"></a>map可以一边遍历一边删除吗</h4><p>map 并不是一个线程安全的数据结构。同时读写一个 map 是未定义的行为，如果被检测到，会直接 panic。</p>
-<h4 id="key可以是float吗"><a href="#key可以是float吗" class="headerlink" title="key可以是float吗"></a>key可以是float吗</h4><p>从语法上看，是可以的。Go 语言中只要是可比较的类型都可以作为 key。除开 slice，map，functions 这几种类型，其他类型都是 OK 的。具体包括：布尔值、数字、字符串、指针、通道、接口类型、结构体、只包含上述类型的数组。这些类型的共同特征是支持 <code>==</code> 和 <code>!=</code> 操作符，<code>k1 == k2</code> 时，可认为 k1 和 k2 是同一个 key。如果是结构体，则需要它们的字段值都相等，才被认为是相同的 key。任何类型都可以作为 value，包括 map 类型。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Go 语言中，通过哈希查找表实现 map，用链表法解决哈希冲突。</p>
-<p>通过 key 的哈希值将 key 散落到不同的桶中，每个桶中有 8 个 cell。哈希值的低位决定桶序号，高位标识同一个桶中的不同 key。</p>
-<p>当向桶中添加了很多 key，造成元素过多，或者溢出桶太多，就会触发扩容。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://zhuanlan.zhihu.com/p/66676224">深度解密Go语言map</a></p>
-<p><a href="https://www.bilibili.com/video/BV1Sp4y1U7dJ?spm_id_from=333.999.0.0">幼麟实验室</a></p>
-]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>GoLang</tag>
-        <tag>数据结构</tag>
-        <tag>哈希表</tag>
       </tags>
   </entry>
   <entry>
@@ -294,33 +266,42 @@
       </tags>
   </entry>
   <entry>
-    <title>函数调用</title>
-    <url>/2021/10/15/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8/</url>
+    <title>HashMap</title>
+    <url>/2021/10/10/Map/</url>
     <content><![CDATA[<p>-</p>
 <span id="more"></span>
 
-<h2 id="GoLang的函数参数传递"><a href="#GoLang的函数参数传递" class="headerlink" title="GoLang的函数参数传递"></a>GoLang的函数参数传递</h2><p>C 语言和 Go 语言在设计函数的调用惯例时选择了不同的实现。C 语言同时使用寄存器和栈传递参数，使用 eax 寄存器传递返回值；而 Go 语言使用栈传递参数和返回值。我们可以对比一下这两种设计的优点和缺点：</p>
-<ul>
-<li>C 语言的方式能够极大地减少函数调用的额外开销，但是也增加了实现的复杂度；<ul>
-<li>CPU 访问栈的开销比访问寄存器高几十倍<a href="https://draveness.me/golang/docs/part2-foundation/ch04-basic/golang-function-call/#fn:3">3</a>；</li>
-<li>需要单独处理函数参数过多的情况；</li>
-</ul>
-</li>
-<li>Go 语言的方式能够降低实现的复杂度并支持多返回值，但是牺牲了函数调用的性能；<ul>
-<li>不需要考虑超过寄存器数量的参数应该如何传递；</li>
-<li>不需要考虑不同架构上的寄存器差异；</li>
-<li>函数入参和出参的内存空间需要在栈上进行分配；</li>
-</ul>
-</li>
-</ul>
-<p>Go 语言使用栈作为参数和返回值传递的方法是综合考虑后的设计，选择这种设计意味着编译器会更加简单、更容易维护。</p>
-<h2 id="GoLang的栈帧分配"><a href="#GoLang的栈帧分配" class="headerlink" title="GoLang的栈帧分配"></a>GoLang的栈帧分配</h2><p>GoLang采取一次性分配栈帧的方法，采用这种方法的原因是避免协程的函数栈帧越界到其他协程的内存区。</p>
-<p>GoLang调用函数时，如果发现新栈帧所需的空间过大，则会在其他区域另外分配一块新的大栈，并把原来的数据拷贝过去，原来的空间被释放。</p>
-<p><img src="/images/f.png" alt="image"></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>函数调用的过程就是往栈里穿参数和返回地址，然后修改ESP和EBP的寄存器，形成新的栈帧，函数调用的时候可以通过新的EBP获取局部变量。</p>
+<h3 id="map是什么？"><a href="#map是什么？" class="headerlink" title="map是什么？"></a>map是什么？</h3><p>map是一种通过key获取value 的抽象数据结构，通常基于哈希表或者搜索树实现，哈希表平均查找速度快O(1),最快是O(N)，自平衡搜索树稳定 O(logN)，但是搜索树会进行很多为了维持自己的平衡的操作，所以map一般基于HashTable实现。</p>
+<h3 id="设计一个哈希表需要考虑哪些因素"><a href="#设计一个哈希表需要考虑哪些因素" class="headerlink" title="设计一个哈希表需要考虑哪些因素"></a>设计一个哈希表需要考虑哪些因素</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">2.1哈希函数如何设计？合理的哈希函数能够提高每个内存的命中和减少哈希碰撞</span><br><span class="line">2.2如何解决哈希冲突？用树还是红黑树？【应该没有语言会用探测法解决哈希冲突吧】</span><br><span class="line">2.3负载因子的大小如何设置，设置为多大才合理？</span><br><span class="line">2.4如何扩容？</span><br></pre></td></tr></table></figure>
+
+<h3 id="一个基于简单拉链法实现的HashMap"><a href="#一个基于简单拉链法实现的HashMap" class="headerlink" title="一个基于简单拉链法实现的HashMap"></a>一个基于简单拉链法实现的HashMap</h3><p>HashMap结构如下,<a href="https://github.com/xgg-1129/XggContainer/tree/master/HashTable">代码</a></p>
+<p>取模法寻址过程为  hash(key) % size</p>
+<p><img src="/images/HashMap.png" alt="Alt text"></p>
+<h3 id="Golang中基于哈希表实现的Map"><a href="#Golang中基于哈希表实现的Map" class="headerlink" title="Golang中基于哈希表实现的Map"></a>Golang中基于哈希表实现的Map</h3><p><img src="https://pic2.zhimg.com/v2-0178a76f87bb68fd7a645e6885e17525_b.jpg" alt="Alt text"></p>
+<p>GoLang的数组存储的不是直接存储一个键值对，而是存储一个bucket，bucket里面存储了8个键值对信息。</p>
+<h4 id="定位函数的设计"><a href="#定位函数的设计" class="headerlink" title="定位函数的设计"></a>定位函数的设计</h4><p>定位函数一般有取模法和与运算，Golang采用的是与运算的设计方案，这种方案要求哈希数组的个数必须是2的整数次幂，这样能够确保不会出现空桶。</p>
+<h4 id="链表哈希冲突"><a href="#链表哈希冲突" class="headerlink" title="链表哈希冲突"></a>链表哈希冲突</h4><p>golang用链表解决哈希冲突</p>
+<h4 id="寻址过程"><a href="#寻址过程" class="headerlink" title="寻址过程"></a>寻址过程</h4><p>key 经过哈希计算后得到哈希值，共 64 个 bit 位（64位机，32位机就不讨论了，现在主流都是64位机），计算它到底要落在哪个桶时，只会用到最后 B 个 bit 位。还记得前面提到过的 B 吗？如果 B = 5，那么桶的数量，也就是 buckets 数组的长度是 2^5 = 32。</p>
+<p>例如，现在有一个 key 经过哈希函数计算后，得到的哈希结果是：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">10010111 | 000011110110110010001111001010100010010110010101010 │ 01010</span><br></pre></td></tr></table></figure>
+
+<p>用最后的 5 个 bit 位，也就是 <code>01010</code>，值为 10，也就是 10 号桶。这个操作实际上就是取余操作，但是取余开销太大，所以代码实现上用的位操作代替。</p>
+<p>再用哈希值的高 8 位，找到此 key 在 bucket 中的位置，这是在寻找已有的 key。最开始桶内还没有 key，新加入的 key 会找到第一个空位，放入。</p>
+<p>buckets 编号就是桶编号，当两个不同的 key 落在同一个桶中，也就是发生了哈希冲突。冲突的解决手段是用链表法：在 bucket 中，从前往后找到第一个空位。这样，在查找某个 key 时，先找到对应的桶，再去遍历 bucket 中的 key。</p>
+<p>key定位流程图</p>
+<p><img src="https://pic3.zhimg.com/v2-dcc95d8e32ba33275a26136749b909fe_b.jpg" alt="img"></p>
+<h4 id="扩容机制"><a href="#扩容机制" class="headerlink" title="扩容机制"></a>扩容机制</h4><p>map 扩容需要将原有的 key/value 重新搬迁到新的内存地址，如果一次性把大量的 key/value 需要搬迁，会非常影响性能。因此 Go map 的扩容采取了一种称为“渐进式”地方式，原有的 key 并不会一次性搬迁完毕，每次最多只会搬迁 2 个 bucket。而且，golang的扩容机智，一定会将golang的旧桶分裂到二个新桶，减少了哈希冲突的概率。</p>
+<h4 id="map可以一边遍历一边删除吗"><a href="#map可以一边遍历一边删除吗" class="headerlink" title="map可以一边遍历一边删除吗"></a>map可以一边遍历一边删除吗</h4><p>map 并不是一个线程安全的数据结构。同时读写一个 map 是未定义的行为，如果被检测到，会直接 panic。</p>
+<h4 id="key可以是float吗"><a href="#key可以是float吗" class="headerlink" title="key可以是float吗"></a>key可以是float吗</h4><p>从语法上看，是可以的。Go 语言中只要是可比较的类型都可以作为 key。除开 slice，map，functions 这几种类型，其他类型都是 OK 的。具体包括：布尔值、数字、字符串、指针、通道、接口类型、结构体、只包含上述类型的数组。这些类型的共同特征是支持 <code>==</code> 和 <code>!=</code> 操作符，<code>k1 == k2</code> 时，可认为 k1 和 k2 是同一个 key。如果是结构体，则需要它们的字段值都相等，才被认为是相同的 key。任何类型都可以作为 value，包括 map 类型。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Go 语言中，通过哈希查找表实现 map，用链表法解决哈希冲突。</p>
+<p>通过 key 的哈希值将 key 散落到不同的桶中，每个桶中有 8 个 cell。哈希值的低位决定桶序号，高位标识同一个桶中的不同 key。</p>
+<p>当向桶中添加了很多 key，造成元素过多，或者溢出桶太多，就会触发扩容。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://zhuanlan.zhihu.com/p/66676224">深度解密Go语言map</a></p>
+<p><a href="https://www.bilibili.com/video/BV1Sp4y1U7dJ?spm_id_from=333.999.0.0">幼麟实验室</a></p>
 ]]></content>
       <tags>
         <tag>GoLang</tag>
+        <tag>数据结构</tag>
       </tags>
   </entry>
   <entry>
@@ -355,6 +336,36 @@
       <categories>
         <category>学习</category>
       </categories>
+      <tags>
+        <tag>GoLang</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>函数调用</title>
+    <url>/2021/10/15/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<h2 id="GoLang的函数参数传递"><a href="#GoLang的函数参数传递" class="headerlink" title="GoLang的函数参数传递"></a>GoLang的函数参数传递</h2><p>C 语言和 Go 语言在设计函数的调用惯例时选择了不同的实现。C 语言同时使用寄存器和栈传递参数，使用 eax 寄存器传递返回值；而 Go 语言使用栈传递参数和返回值。我们可以对比一下这两种设计的优点和缺点：</p>
+<ul>
+<li>C 语言的方式能够极大地减少函数调用的额外开销，但是也增加了实现的复杂度；<ul>
+<li>CPU 访问栈的开销比访问寄存器高几十倍<a href="https://draveness.me/golang/docs/part2-foundation/ch04-basic/golang-function-call/#fn:3">3</a>；</li>
+<li>需要单独处理函数参数过多的情况；</li>
+</ul>
+</li>
+<li>Go 语言的方式能够降低实现的复杂度并支持多返回值，但是牺牲了函数调用的性能；<ul>
+<li>不需要考虑超过寄存器数量的参数应该如何传递；</li>
+<li>不需要考虑不同架构上的寄存器差异；</li>
+<li>函数入参和出参的内存空间需要在栈上进行分配；</li>
+</ul>
+</li>
+</ul>
+<p>Go 语言使用栈作为参数和返回值传递的方法是综合考虑后的设计，选择这种设计意味着编译器会更加简单、更容易维护。</p>
+<h2 id="GoLang的栈帧分配"><a href="#GoLang的栈帧分配" class="headerlink" title="GoLang的栈帧分配"></a>GoLang的栈帧分配</h2><p>GoLang采取一次性分配栈帧的方法，采用这种方法的原因是避免协程的函数栈帧越界到其他协程的内存区。</p>
+<p>GoLang调用函数时，如果发现新栈帧所需的空间过大，则会在其他区域另外分配一块新的大栈，并把原来的数据拷贝过去，原来的空间被释放。</p>
+<p><img src="/images/f.png" alt="image"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>函数调用的过程就是往栈里穿参数和返回地址，然后修改ESP和EBP的寄存器，形成新的栈帧，函数调用的时候可以通过新的EBP获取局部变量。</p>
+]]></content>
       <tags>
         <tag>GoLang</tag>
       </tags>
@@ -401,9 +412,187 @@
       </tags>
   </entry>
   <entry>
+    <title>指令重排</title>
+    <url>/2021/10/19/%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<p>作者：幼麟实验室<br>链接：<a href="https://zhuanlan.zhihu.com/p/397426645">https://zhuanlan.zhihu.com/p/397426645</a><br>来源：知乎</p>
+<h2 id="1-Happens-Before"><a href="#1-Happens-Before" class="headerlink" title="1.Happens Before"></a><strong>1.Happens Before</strong></h2><p>在多线程的环境中，多个线程或协程同时操作内存中的共享变量，如果不加限制的话，就会出现出乎意料的结果。想保证结果正确，就需要在时序上让来自不同线程的访问串行化，彼此之间不出现重叠。</p>
+<p>线程对变量的操作一般就是Load和Store两种，就是我们俗称的读和写。Happens Before也可以认为是对一种串行化描述或要求，<strong>目的是保证某个线程对变量的写操作，能够被其他的线程正确的读到</strong>。</p>
+<p>按照字面含义，你可能会认为，如果事件e2在时序上于事件e1结束后发生，那么就可以说事件e1 happens before e2了。按照一般常识应该是这样的，在我们介绍内存乱序之前你暂时可以这样理解，事实上这对于多核环境下的内存读写操作来讲是不够的。</p>
+<p>如果e1 happens before e2，那么也可以说成e2 happens after e1。若要保证对变量v的某个读操作r，能够读取到某个写操作w写入到v的值，必须同时满足以下条件：</p>
+<p><strong>1）w happens before r；</strong></p>
+<p><strong>2）没有其他针对v的写操作happens after w且before r。</strong></p>
+<p>如果e1既不满足happens before e2，又不满足happens after e2，那么就认为e1与e2之间存在并发。</p>
+<p><img src="https://pic1.zhimg.com/v2-7654edd4566087a9ecea96cd5c2e0ef0_b.jpg" alt="img"><img src="https://pic1.zhimg.com/80/v2-7654edd4566087a9ecea96cd5c2e0ef0_1440w.jpg" alt="img"></p>
+<p>单个线程或协程内部访问某个变量是不存在并发的，默认就能满足happens before条件，因此某个读操作总是能读到之前最近一次写操作写入的值。但是在多个线程或协程之间就不一样了，因为存在并发的原因，必须通过一些同步机制来实现串行化，以确立happens before条件。</p>
+<h2 id="2-并发和并行"><a href="#2-并发和并行" class="headerlink" title="2.并发和并行"></a><strong>2.并发和并行</strong></h2><p>在单核CPU上分时交替运行的多个线程，可以认为是最经典的并发场景。宏观上看起来同时在运行的多个线程，微观上是以极短时间片交替运行在同一个CPU上。在多核CPU出现以前，并发指的就是这么一种情况。但是在多核CPU出现以后，并发就不像以前那么简单了，不仅仅是微观上的分时运行，还包含了并行的情况。</p>
+<p>抽象的解释并发的话，指的是多个事件在宏观上是同时发生的，但是并不一定要在同一时刻发生。而并行就不一样了，从微观角度来看，并行的两个事件至少有某一时刻是同时发生的。所以在单核CPU上的多线程只存在并发，不存在并行。只有在多核CPU上，线程才有可能并行执行。</p>
+<h2 id="3-内存乱序"><a href="#3-内存乱序" class="headerlink" title="3.内存乱序"></a><strong>3.内存乱序</strong></h2><p>一般来讲，我们认为代码会按照编写的顺序来执行，也就是逐语句、逐行的按顺序执行。然而事实并非如此，编译器有可能对指令顺序进行调整，处理器普遍具有乱序执行的特性，目的都是为了更优的性能。</p>
+<p>操作内存的指令可以分成Load和Store两类，也就是按读和写划分。<strong>编译器和CPU都会考虑指令间的依赖关系，在不会改变当前线程行为的前提下进行顺序调整，因此在单个线程内依然是逻辑有序的</strong>。但这种有序性只是在单个线程内，并不会保证线程间的有序性。</p>
+<p>程序中的共享变量都是位于内存中的，指令顺序的变化会让多个线程同时读写内存中的共享变量产生意想不到的结果。<strong>这种因指令乱序造成的内存操作顺序与预期不一致的问题，就是我们所谓的内存乱序。</strong></p>
+<p><strong>编译期乱序</strong></p>
+<p>所谓的编译期乱序，指的就是编译器对最终生成的机器指令进行了顺序调整，一般是出于性能优化的目的。造成的影响就是，机器指令的顺序与源代码中语句的顺序并不是严格匹配。这种乱序在C++中很常见，尤其是在编译器的优化级别比较高的时候。这一问题最常用的解决方法就是使用compiler barrier，俗称<strong>“编译屏障”</strong>。编译屏障会阻止编译器跨屏障移动指令，但是仍然可以在屏障的两侧分别移动。在GCC中，常用的编译屏障就是在两条语句之间嵌入一个空的汇编语句块：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">data = someValue;</span><br><span class="line">asm volatile(<span class="string">&quot;&quot;</span> :::<span class="string">&quot;memory&quot;</span>); <span class="comment">// compiler barrier</span></span><br><span class="line">ok = <span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+
+<p>但是加上编译屏障后，依然无法保证程序能够在各个平台上如预期的运行，原因就是CPU在执行期间也可能会对指令的顺序进行调整，也就是所谓的<strong>“执行期乱序”</strong>。</p>
+<p><strong>执行期乱序</strong></p>
+<p>先用一段代码来让大家亲自见证执行期乱序，这样更有助于后续内容的理解。下面这段代码使用Go语言来实现，平台是amd64：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    s := [<span class="number">2</span>]<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;&#123;</span><br><span class="line">        <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, <span class="number">1</span>),    </span><br><span class="line">        <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, <span class="number">1</span>),    </span><br><span class="line">    &#125;    </span><br><span class="line">    f := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, <span class="number">2</span>)    </span><br><span class="line">    <span class="keyword">var</span> x, y, a, b <span class="keyword">int64</span>    </span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;    </span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">1000000</span>; i++ &#123;        </span><br><span class="line">            &lt;-s[<span class="number">0</span>]        </span><br><span class="line">            x = <span class="number">1</span>            </span><br><span class="line">            b = y            </span><br><span class="line">            f &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125;        </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;()    </span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;        </span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">1000000</span>; i++ &#123;            </span><br><span class="line">            &lt;-s[<span class="number">1</span>]            </span><br><span class="line">            y = <span class="number">1</span>            </span><br><span class="line">            a = x            </span><br><span class="line">            f &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125;        </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;()    </span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">1000000</span>; i++ &#123;        </span><br><span class="line">        x = <span class="number">0</span>        </span><br><span class="line">        y = <span class="number">0</span>        </span><br><span class="line">        s[i%<span class="number">2</span>] &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125;        </span><br><span class="line">        s[(i+<span class="number">1</span>)%<span class="number">2</span>] &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125;        </span><br><span class="line">        &lt;-f        </span><br><span class="line">        &lt;-f        </span><br><span class="line">        <span class="keyword">if</span> a == <span class="number">0</span> &amp;&amp; b == <span class="number">0</span> &#123;            </span><br><span class="line">            <span class="built_in">println</span>(i)        </span><br><span class="line">        &#125;   </span><br><span class="line">    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码中一共有3个协程，4个int类型的共享变量，3个协程都会循环100万次，3个channel用来同步每次循环。循环开始时先由主协程将x、y清零，然后通过切片s中的两个channel让其他两个协程开始运行。协程1在每轮循环中先把1赋值给x，再把y赋值给b。协程2在每轮循环中先把1赋值给y，再把x赋值给a。f用来保证在每轮循环中都等到两个协程完成赋值操作后，主协程才去检测a和b的值，两者同时为0时会打印出当前循环的次数。</p>
+<p>*<strong>a和b的取值会有几种可能？*</strong></p>
+<p>从源码角度来看，无论如何a和b都不应该同时等于0。如果协程1完成赋值后协程2才开始执行，结果就是a等于1而b等于0，反过来就是a等于0而b等于1。如果两个协程的赋值语句并行执行，那么结果就是a和b都等于1。然而实际运行的话，会发现大量打印输出，根本原因就是出现了执行期乱序。注意，执行期乱序要在并行环境下才能体现出来，单个CPU核心自己是不会体现出乱序的。Go程序可以使用GOMAXPROCS环境变量来控制并发度，针对上述示例代码，GOMAXPROCS设置为1的话即使在多核心CPU上也不会出现乱序。</p>
+<p>*<strong>为什么a和b会同时等于0?*</strong></p>
+<p>协程一、二中的两条赋值语句形式相似，对应到x86汇编就是三条内存操作指令，按顺序分别是Store、Load、Store。</p>
+<p><img src="https://pic2.zhimg.com/v2-e2c5a92d355b26d10a0ae1ac462512bd_b.jpg" alt="img"><img src="https://pic2.zhimg.com/80/v2-e2c5a92d355b26d10a0ae1ac462512bd_1440w.jpg" alt="img"></p>
+<p>出现的乱序问题就是由前两条指令造成的，称为Store-Load乱序，<strong>这也是当前的x86架构CPU上能够观察到的唯一一种乱序</strong>。Store和Load分别操作的是不同的内存地址，从现象来看就像是先执行的Load而后执行的Store。</p>
+<p><em><strong>为什么会出现Store-Load乱序呢？</strong></em></p>
+<p>我们知道现在的CPU普遍带有多级指令和数据缓存，指令执行系统也是流水线式的，可以让多条指令同时在流水线上执行。一般的内存都属于write-back cacheable内存，简称WB内存。对于WB内存而言，Store和Load指令并不是直接操作内存中的数据，而是先把指定的内存单元填充到高速缓存中，然后读写高速缓存中的数据。<strong>Load指令的大致流程：</strong>先尝试从高速缓存中读取，如果缓存命中，读操作就完成了。</p>
+<p><img src="https://pic3.zhimg.com/v2-769beddc2407918d494ac63315d2bebe_b.jpg" alt="img"><img src="https://pic3.zhimg.com/80/v2-769beddc2407918d494ac63315d2bebe_1440w.jpg" alt="img"></p>
+<p>如果缓存未命中，那么先填充对应的cache line，然后从cache line中读取：</p>
+<p><img src="https://pic4.zhimg.com/v2-6358e0c204234f4ce44a4b29a6d71733_b.jpg" alt="img"><img src="https://pic4.zhimg.com/80/v2-6358e0c204234f4ce44a4b29a6d71733_1440w.jpg" alt="img"></p>
+<p><strong>Store指令的大致流程类似</strong>，先尝试写高速缓存，如果缓存命中，写操作就完成了。如果缓存未命中，那么先填充对应的cache line，然后写到cache line中：</p>
+<p><img src="https://pic2.zhimg.com/v2-ebdf40d99d4a2544008d6ad407bac3e5_b.jpg" alt="img"><img src="https://pic2.zhimg.com/80/v2-ebdf40d99d4a2544008d6ad407bac3e5_1440w.jpg" alt="img"></p>
+<p>可能有些读者会对Store操作写之前要先填充cache line感到疑惑，那是因为高速缓存和内存之间的数据传输不是以字节为单位的，最小单位就是一个cache line。cache line大小因处理器的架构而异，常见的大小有32、64及128字节等。</p>
+<p>在多核心的CPU上，Store操作会变的更复杂一些。每个CPU核心都拥有自己的高速缓存，例如x86的L1 Cache。写操作会修改当前核心的高速缓存，被修改的数据可能存在于多个核心的高速缓存中，CPU需要保证各个核心间的缓存一致性。目前主流的缓存一致性协议是MESI协议，MESI这个名字取自缓存单元可能的4种状态，分别是已修改Modified，独占的Exclusive，共享的Shared，和无效的Invalid。当一个CPU核心要对自身高速缓存的某个单元进行修改时，它需要先通知其他CPU核心把各自高速缓存中对应的单元置为Invalid，再把自己的这个单元置为Exclusive，然后就可以进行修改了。</p>
+<p><img src="https://pic1.zhimg.com/v2-58e8e383cd5a55db2a85e5ca805b1c20_b.jpg" alt="img"><img src="https://pic1.zhimg.com/80/v2-58e8e383cd5a55db2a85e5ca805b1c20_1440w.jpg" alt="img"></p>
+<p>这个过程涉及多核间内部通信，是一个相对较慢的过程，为了避免当前核心因为等待而阻塞，CPU在设计上又引入了Store Buffer。当前核心向其他核心发出通知以后，可以先把要写的值放在Store Buffer中，然后继续执行后面的指令，等到其他核心完成响应以后，当前核心再把Store Buffer中的值合并到高速缓存中。</p>
+<p><img src="https://pic1.zhimg.com/v2-5036375c3877bd42c663c246490b8678_b.jpg" alt="img"><img src="https://pic1.zhimg.com/80/v2-5036375c3877bd42c663c246490b8678_1440w.jpg" alt="img"></p>
+<p>虽然高速缓存会保证多核一致性，但是Store Buffer却是各个核心私有的，对其他核心不可见。在Store-Load乱序中，从微观时序上，Load指令可能是在另一个线程的Store之后执行，但此时多核间通信尚未完成，对应的缓存单元还没有被置为Invalid，Store Buffer也没有被合并到高速缓存中，所以Load读到的是修改前的值。</p>
+<p><img src="https://pic4.zhimg.com/v2-fec6f855d2c7e111ba00f0f2d00158cf_b.jpg" alt="img"><img src="https://pic4.zhimg.com/80/v2-fec6f855d2c7e111ba00f0f2d00158cf_1440w.jpg" alt="img"></p>
+<p>如上图所示，如果协程1执行的Store命令，x的新值只是写入CPU1的Store Buffer，尚未合并到高速缓存，此时协程2执行Load指令拿到的x就是修改前的旧值0，而不是1。同样的，协程2修改y的值也可能只写入的CPU2的Store Buffer，所以协程1执行Load指令加载的y的值就是旧值0。</p>
+<p><img src="https://pic2.zhimg.com/v2-f9735be57c9bcfa23a32caf8494dc915_b.jpg" alt="img"><img src="https://pic2.zhimg.com/80/v2-f9735be57c9bcfa23a32caf8494dc915_1440w.jpg" alt="img"></p>
+<p>而当协程1执行最后一条Store指令时，b就被附值为0；同样的，协程2会将a附值为0。即使Store Buffer合并到高速缓存，x和y都被修改为新值，也已经晚了。</p>
+<p>我们通过代码示例见证了x86的Store-Load乱序，Intel开发者手册上说x86只会出现这一种乱序。抛开固定的平台架构，理论上可能出现的乱序有4种：</p>
+<p>（1）Load-Load，相邻的两条Load指令，后面的比前面的先读到数据；</p>
+<p>（2）Load-Store，Load指令在前Store指令在后，但是Store操作先变成全局可见，Load指令在此之后才读到数据；</p>
+<p>（3）Store-Load，Store指令在前Load指令在后，但是在Load指令先读到了数据，Store操作在此之后才变成全局可见。这个我们已经在x86平台见证过了；</p>
+<p>（4）Store-Store，相邻的两条Store指令，后面的比前面的先变成全局可见。</p>
+<p>所谓的全局可见，指的就是在多核CPU上对所有核心可见。因为笔者手边只有amd64架构的工作电脑，暂时无法见证其他几种乱序，有条件的读者可以在其他的架构上尝试一下。比如通过以下代码应该可以发现Store-Store乱序：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> wgsync.WaitGroup</span><br><span class="line">    <span class="keyword">var</span> x, yint64</span><br><span class="line">    wg.Add(<span class="number">2</span>)</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">defer</span> wg.Done()</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">1000000000</span>; i++ &#123;</span><br><span class="line">            <span class="keyword">if</span> x == <span class="number">0</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> y != <span class="number">0</span> &#123;</span><br><span class="line">                    <span class="built_in">println</span>(<span class="string">&quot;1:&quot;</span>, i)</span><br><span class="line">                &#125;</span><br><span class="line">                x = <span class="number">1</span></span><br><span class="line">                y = <span class="number">1</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        deferwg.Done()</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>;i &lt; <span class="number">1000000000</span>; i++ &#123;</span><br><span class="line">            <span class="keyword">if</span> y == <span class="number">1</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> x != <span class="number">1</span> &#123;</span><br><span class="line">                    <span class="built_in">println</span>(<span class="string">&quot;2:&quot;</span>,i)</span><br><span class="line">                &#125;</span><br><span class="line">                y= <span class="number">0</span></span><br><span class="line">                x= <span class="number">0</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-内存排序指令"><a href="#4-内存排序指令" class="headerlink" title="4.内存排序指令"></a><strong>4.内存排序指令</strong></h2><p>执行期乱序会给结果带来很大的不确定性，这对于应用程序来说是不能接受的，完全按照指令顺序执行又会使性能变差。为了解决这一问题，CPU提供了内存排序指令，应用程序在必要的时候能够通过这些指令来避免发生乱序。以目前的Intel x86处理器为例，就提供了LFENCE、SFENCE和MFENCE这3条内存排序指令，接下来我们就逐一分析一下它们的作用。</p>
+<p><strong>LFENCE</strong></p>
+<p>LFENCE是LoadFence的缩写，Fence翻译成中文是栅栏，可以认为起到分隔的作用，它会对当前核心上LFENCE之前的所有Load类指令进行序列化操作。具体来说，针对当前CPU核心，LFENCE会在之前的所有指令都执行完后才开始执行，并且在LFENCE执行完之前，不会有后续的指令开始执行。特别是，LFENCE之前的Load指令，一定会在LFENCE执行完成之前从内存接收到数据。LFENCE不会针对Store指令，Store指令之后的LFENCE可能会在Store写入的数据变成全局可见前执行完成。LFENCE之后的指令可以提前被从内存中加载，但是在LFENCE执行完之前它们不会被执行，即使是推测性的。以上主要是Intel开发者手册对LFENCE的解释，它原本被设计用来阻止Load-Load乱序。让所有后续的指令在之前的指令执行完后才开始执行，这是Intel对它功能的一个扩展，因此理论上它应该也能阻止Load-Store乱序。考虑到目前的x86 CPU不会出现这两种乱序，所以编程语言中暂时没有用到LFENCE指令来进行多核同步，未来也许会用到。Go的runtime中用到了LFENCE的扩展功能来对RDTSC进行序列化，但是这并不属于同步的范畴。</p>
+<p><strong>SFENCE</strong></p>
+<p>SFENCE是StoreFence的缩写，它能够分隔两侧的Store指令，保证之前的Store操作一定会在之后的Store操作变成全局可见前先变成全局可见。结合前一小节的高速缓存和Store Buffer，笔者猜测SFENCE影响到Store Buffer合并到高速缓存的顺序。根据上述解释，SFENCE应该主要是用来应对Store-Store乱序，由于现阶段的x86 CPU也不会出现这种乱序，所以编程语言暂时也未用到它来进行多核同步。</p>
+<p><strong>MFENCE</strong></p>
+<p>MFENCE是MemoryFence的缩写，它会对之前所有的Load和Store指令进行序列化操作，这个序列化会保证MFENCE之前的所有Load和Store操作会在之后的任何Load和Store操作前先变成全局可见。所以上述3条指令中，只有MFENCE能够阻止Store-Load乱序。我们对之前的示例代码稍作修改，尝试使用MFENCE指令来阻止Store-Load乱序，新的示例中用到了汇编语言，所以需要两个源码文件。首先是汇编代码文件fence_amd64.s:</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">#include <span class="string">&quot;textflag.h&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// func mfence()</span></span><br><span class="line">TEXT ·mfence(SB), NOSPLIT, $<span class="number">0</span><span class="number">-0</span></span><br><span class="line">MFENCE</span><br><span class="line">RET</span><br></pre></td></tr></table></figure>
+
+<p>接下来是修改过的Go代码，被放置在fence.go文件中，跟之前会发生乱序的代码只有一点不同，就是在Store和Load之间插入了MFENCE指令。如下所示：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    s :=[<span class="number">2</span>]<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;&#123;</span><br><span class="line">        <span class="built_in">make</span>(chanstruct&#123;&#125;, <span class="number">1</span>),</span><br><span class="line">        <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, <span class="number">1</span>),</span><br><span class="line">    &#125;</span><br><span class="line">    f := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, <span class="number">2</span>)</span><br><span class="line">    <span class="keyword">var</span> x, y, a, b <span class="keyword">int64</span></span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt;<span class="number">1000000</span>; i++ &#123;</span><br><span class="line">            &lt;-s[<span class="number">0</span>]</span><br><span class="line">            x = <span class="number">1</span></span><br><span class="line">            mfence()</span><br><span class="line">            b = y</span><br><span class="line">            f &lt;-<span class="keyword">struct</span>&#123;&#125;&#123;&#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>;i &lt; <span class="number">1000000</span>; i++ &#123;</span><br><span class="line">            &lt;-s[<span class="number">1</span>]</span><br><span class="line">            y = <span class="number">1</span></span><br><span class="line">            mfence()</span><br><span class="line">            a = x</span><br><span class="line">            f &lt;-<span class="keyword">struct</span>&#123;&#125;&#123;&#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>;i &lt; <span class="number">1000000</span>; i++ &#123;</span><br><span class="line">        x = <span class="number">0</span></span><br><span class="line">        y = <span class="number">0</span></span><br><span class="line">        s[i%<span class="number">2</span>] &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125;</span><br><span class="line">        s[(i+<span class="number">1</span>)%<span class="number">2</span>] &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125;</span><br><span class="line">        &lt;-f</span><br><span class="line">        &lt;-f</span><br><span class="line">        <span class="keyword">if</span> a == <span class="number">0</span> &amp;&amp; b == <span class="number">0</span> &#123;</span><br><span class="line">            <span class="built_in">println</span>(i)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">mfence</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+
+<p>编译执行上述代码，就会发现之前的Store-Load乱序不见了，程序不会有任何打印输出。如果将MFENCE指令换成LFENCE或SFENCE，就无法达到同样的目的了，感兴趣的读者可以自己尝试一下。</p>
+<p>通过内存排序指令解决了执行期乱序造成的问题，但是这并不足以解决并发场景下的同步问题。要想结合代码逻辑轻松的实现多线程同步，就要用到专门的工具——锁。</p>
+]]></content>
+      <tags>
+        <tag>编译原理</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>单例模式</title>
+    <url>/2021/10/19/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<h2 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h2><p>宏观上来说，<strong>单例模式是指在内存中只会创建且仅创建一次对象的设计模式。</strong>在程序中<strong>多次使用同一个对象且作用相同</strong>时，为了防止频繁地创建对象使得内存飙升，单例模式可以让程序仅在内存中<strong>创建一个对象</strong>，让所有需要调用的地方都共享这一单例对象。</p>
+<h2 id="单例模式的类型"><a href="#单例模式的类型" class="headerlink" title="单例模式的类型"></a>单例模式的类型</h2><p>懒汉式：在<strong>真正需要使用</strong>对象时才去初始化单例类对象</p>
+<p>饿汉式：在编译器期间确定初始化对象</p>
+<h3 id="懒汉式"><a href="#懒汉式" class="headerlink" title="懒汉式"></a>懒汉式</h3><p>GoLang可以用Init和Sync.once来创建懒汉式单例模式</p>
+<h3 id="饿汉式"><a href="#饿汉式" class="headerlink" title="饿汉式"></a>饿汉式</h3><p>饿汉式需要用双重检查+锁机制创建，或者用双重检查+volatile创建，volatile只能防止编译器的<a href="">指令重排</a>，<strong>如果初始化对象的逻辑比较复杂，还是推荐用双重检查+锁机制。</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> lock = &amp;sync.Mutex&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> single <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> singleInstance *single</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getInstance</span><span class="params">()</span> *<span class="title">single</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> singleInstance == <span class="literal">nil</span> &#123;</span><br><span class="line">        lock.Lock()</span><br><span class="line">        <span class="keyword">defer</span> lock.Unlock()</span><br><span class="line">        <span class="keyword">if</span> singleInstance == <span class="literal">nil</span> &#123;</span><br><span class="line">            fmt.Println(<span class="string">&quot;Creating single instance now.&quot;</span>)</span><br><span class="line">            singleInstance = &amp;single&#123;&#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            fmt.Println(<span class="string">&quot;Single instance already created.&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">&quot;Single instance already created.&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> singleInstance</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>接口</title>
+    <url>/2021/10/17/%E6%8E%A5%E5%8F%A3/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2><p>从哲学角度来看，接口是一组方法的规范，它解除了类型以来，屏蔽了类型的内部结构和细节，写项目时，我们可以先实现类型，然后再抽象出所需接口。接口的本质是引入一个新的中间层，调用方可以通过接口与具体实现分离，解除上下游的耦合，上层的模块不再需要依赖下层的具体模块，只需要依赖一个约定好的接口。下面介绍GoLang怎么从编程语言角度实现接口。</p>
+<h2 id="GoLang接口"><a href="#GoLang接口" class="headerlink" title="GoLang接口"></a>GoLang接口</h2><p>Go的接口是一种内置的数据类型，它能够出现在变量的定义、函数的入参和返回值中并对它们进行约束，不过 Go 语言中有两种略微不同的接口，一种是带有一组方法的接口，另一种是不带任何方法的 <code>interface&#123;&#125;</code>,GoLang是静态编译语言，接口实例化类型时，会在编译期间用静态分析技术【<a href="https://baike.baidu.com/item/%E7%A8%8B%E5%BA%8F%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90/1968823?fr=aladdin">静态分析技术就是在程序运行前检查出错误</a>】来进行类型检查。</p>
+<h3 id="空接口eface"><a href="#空接口eface" class="headerlink" title="空接口eface"></a>空接口eface</h3><p>虽然以空接口为参数的函数能够接受所有的数据类型，但是空接口并不是任意类型，函数在接受参数后，会在运行时对参数进行类型转换使得类型称为空接口类型。</p>
+<p>可以通过下面的例子理解Go语言的接口类型不是任意类型。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> TestStruct <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NilOrNot</span><span class="params">(v <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> v == <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> s *TestStruct</span><br><span class="line">	fmt.Println(s == <span class="literal">nil</span>)      <span class="comment">// #=&gt; true</span></span><br><span class="line">	fmt.Println(NilOrNot(s))   <span class="comment">// #=&gt; false</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="literal">true</span></span><br><span class="line"><span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+<p>我们简单总结一下上述代码执行的结果：</p>
+<ul>
+<li>将上述变量与 <code>nil</code> 比较会返回 <code>true</code>；</li>
+<li>将上述变量传入 <code>NilOrNot</code> 方法并与 <code>nil</code> 比较会返回 <code>false</code>；</li>
+</ul>
+<p>出现上述现象的原因是 —— 调用 <code>NilOrNot</code> 函数时发生了<strong>隐式的类型转换</strong>，除了向方法传入参数之外，变量的赋值也会触发隐式类型转换。在类型转换时，<code>*TestStruct</code> 类型会转换成 <code>interface&#123;&#125;</code> 类型，转换后的变量不仅包含转换前的变量，还包含变量的类型信息 <code>TestStruct</code>，所以转换后的变量与 <code>nil</code> 不相等。</p>
+<p>eface结构体在 Go 语言中的定义是这样的：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> eface <span class="keyword">struct</span> &#123; <span class="comment">// 16 字节</span></span><br><span class="line">	_type *_type    <span class="comment">//指向元数据</span></span><br><span class="line">	data  unsafe.Pointer    <span class="comment">//数据指针</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>元数据是基本数据类型时候，data指向基本数据类型的地址，元数据是引用类型的时候，data和引用类型一样，指向引用类型指向的内存地址。</strong></p>
+<img src="/images/eface.png" width="90%"  />
+
+<h3 id="带方法接口iface"><a href="#带方法接口iface" class="headerlink" title="带方法接口iface"></a>带方法接口iface</h3><p>iface结构体在 Go 语言中的定义如下：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> iface <span class="keyword">struct</span> &#123; <span class="comment">// 16 字节</span></span><br><span class="line">	tab  *itab       </span><br><span class="line">	data unsafe.Pointer</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>itab结构体是接口类型的核心组成部分，每一个itab都占 32 字节，我们可以将其看成接口类型和具体类型的组合，它们分别用 <code>inter</code> 和 <code>_type</code> 两个字段表示</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> itab <span class="keyword">struct</span> &#123; <span class="comment">// 32 字节</span></span><br><span class="line">	inter *interfacetype     <span class="comment">//接口元数据</span></span><br><span class="line">	_type *_type			 <span class="comment">//实际对象元数据</span></span><br><span class="line">	hash  <span class="keyword">uint32</span>			<span class="comment">//用来快速判断接口是否相同</span></span><br><span class="line">	_     [<span class="number">4</span>]<span class="keyword">byte</span>			<span class="comment">//内存对齐用的把，我猜的</span></span><br><span class="line">	fun   [<span class="number">1</span>]<span class="keyword">uintptr</span>		<span class="comment">//实际对象方法数组地址</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<img src="/images/iface.png" width="90%"  />
+
+
+<h2 id="类型断言"><a href="#类型断言" class="headerlink" title="类型断言"></a>类型断言</h2><p>类型断言能够将接口转化为具体类型或者非空接口类型</p>
+<h3 id="空接口-具体类型"><a href="#空接口-具体类型" class="headerlink" title="空接口.具体类型"></a>空接口.具体类型</h3><p>这种情况只需要判断空接口的type和具体类型的元数据是否一致</p>
+<h3 id="非空接口-具体类型"><a href="#非空接口-具体类型" class="headerlink" title="非空接口.具体类型"></a>非空接口.具体类型</h3><p>这种情况只需要判断Itab中的type和具体类型的元数据是否一直</p>
+<h3 id="空接口-非空接口类型"><a href="#空接口-非空接口类型" class="headerlink" title="空接口.非空接口类型"></a>空接口.非空接口类型</h3><p>这种情况只需要检查空接口指向的类型元数据的方法集是否满足接口的实现</p>
+<h3 id="非空接口-非空接口类型"><a href="#非空接口-非空接口类型" class="headerlink" title="非空接口.非空接口类型"></a>非空接口.非空接口类型</h3><p>原理都是一样的，类型断言的原理就是检查类型的方法集是否满足断言类型的要求。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.bilibili.com/video/BV1hv411x7we?p=15&spm_id_from=pageDriver">幼鳞实验室</a></p>
+<p><a href="https://draveness.me/golang/docs/part2-foundation/ch04-basic/golang-interface/#426-%E5%B0%8F%E7%BB%93">Draveness接口</a></p>
+]]></content>
+      <tags>
+        <tag>GoLang</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>方法</title>
+    <url>/2021/10/17/%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<p>-</p>
+<span id="more"></span>
+
+<h2 id="什么是方法"><a href="#什么是方法" class="headerlink" title="什么是方法"></a>什么是方法</h2><p>方法是面向对象编程的一个概念，本质就是一个维护和改变对象状态的函数，和普通函数相比，他关联着某个对象的状态。</p>
+<p>方法和函数在语法层面的区别就是，方法会接受一个对象实例为参数，在某些语言中，尽管没有显示定义，但是会在调用的时候传递this这种隐式实例。</p>
+<p>GoLang可以使用实例值或者指针调用方法，编译器会根据方法接收者类型自动在基础类型和指针类型间转换。【是否会改变实例本身取决于方法接收者的参数类型】</p>
+<h2 id="方法集"><a href="#方法集" class="headerlink" title="方法集"></a>方法集</h2><p>每个类型都有自己的方法集【元数据有记录】，这决定了他是否实现了某个接口。</p>
+<p>类型T包含了所有receiverT的方法</p>
+<p>类型*T包含了所有receiver T + *T的方法</p>
+]]></content>
+  </entry>
+  <entry>
     <title>网络安全</title>
     <url>/2021/10/17/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/</url>
     <content><![CDATA[<p>-</p>
-<span id="more"></span>]]></content>
+<span id="more"></span>
+
+<h2 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h2><p>加密和解密用一把密钥就是对称加密</p>
+<p><strong>特点：</strong></p>
+<p>1.算法可能是安全的，但是密钥的传输无法保证安全</p>
+<p>2.在知道算法的情况下，可以暴力破解，比如3DES密钥的长度是64【好像是】，黑客可以用枚举法破解</p>
+<p>3.对称加密也不是一无是处，它的优点就是<strong>快</strong></p>
+<h2 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h2><p>加密和解密用2把不同的锁就是非对称加密，公钥不是加密锁，私钥也不是解密锁，看后面。</p>
+<p>私钥是钥匙，而公钥是锁，可以把锁公开出去，让别人把数据锁起来发给我；而钥匙一定要留在自己手里，用于解锁。</p>
+<p><strong>非对称加密无法解决认证发送方身份的问题</strong></p>
+<h2 id="数字签名"><a href="#数字签名" class="headerlink" title="数字签名"></a>数字签名</h2><p><strong>数字签名也是利用了非对称性密钥的特性，但是和公钥加密完全颠倒过来：仍然公布公钥，但是用你的私钥加密数据，然后把加密的数据公布出去，这就是数字签名</strong>。</p>
+<p><strong>数字签名的作用本来就不是保证数据的机密性，而是证明你的身份</strong>，证明这些数据确实是由你本人发出的。</p>
+<p><strong>数字签名可以一定程度上认证数据的来源</strong>。之所以说是一定程度上，是因为这种方式依然可能受到中间人攻击。一旦涉及公钥的发布，接收方就可能收到中间人的假公钥，进行错误的认证，这个问题始终避免不了。</p>
+<h2 id="公钥证书"><a href="#公钥证书" class="headerlink" title="公钥证书"></a>公钥证书</h2><p><strong>证书其实就是公钥 + 签名，由第三方认证机构颁发</strong>。引入可信任的第三方，是终结信任循环的一种可行方案。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.ruanyifeng.com/blog/2011/08/what_is_a_digital_signature.html">数字签名是什么？</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/105087487">什么是对称/非对称加密、密钥交换、数字签名、证书</a></p>
+]]></content>
+      <tags>
+        <tag>计算机网络</tag>
+      </tags>
   </entry>
 </search>
